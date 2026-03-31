@@ -1,21 +1,33 @@
-<<<<<<< HEAD
-# qlphongtro
+# 🏠 Ứng dụng Quản lý Khách thuê trọ - Đồ án Lập trình Di động
 
-A new Flutter project.
+Hệ thống hỗ trợ chủ nhà trọ quản lý thông tin phòng, hợp đồng, chi phí và thông báo một cách hiệu quả trên nền tảng Flutter.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 👥 Thành viên nhóm 05
 
-A few resources to get you started if this is your first Flutter project:
+1. **Đoàn Tuấn Tú**
+2. **Phan Minh Tâm**
+3. **Nguyễn Ngọc Yến Linh**
+4. **Đỗ Thành Trung**
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# doan_laptrinhdidong
-=======
-# QuanLyPhongTro_Flutter
->>>>>>> 90be1871a33c073277722b01909265fd7539503d
+## 🛠 Hướng dẫn làm việc với GitHub cho nhóm
+
+Để đảm bảo code không bị xung đột và mọi người luôn có bản mới nhất, các thành viên vui lòng tuân thủ quy trình sau:
+
+### 1. Lấy code về máy lần đầu (Clone)
+
+Mở Terminal tại thư mục bạn muốn lưu đồ án và chạy lệnh:
+
+```bash
+git clone [https://github.com/phanminhtam220405-design/QuanLyPhongTro_Flutter.git](https://github.com/phanminhtam220405-design/QuanLyPhongTro_Flutter.git)
+####
+Bước 1: Cập nhật code mới nhất từ nhóm
+git pull origin main
+####
+Đưa code lên GitHub
+git add .
+git commit -m "Tính năng: Thêm giao diện quản lý sự cố - [Tên của bạn]"
+git push origin main
