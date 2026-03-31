@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # qlphongtro
 
 A new Flutter project.
@@ -15,3 +16,6 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 # doan_laptrinhdidong
+=======
+# QuanLyPhongTro_Flutter
+>>>>>>> 90be1871a33c073277722b01909265fd7539503d
