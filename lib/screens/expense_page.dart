@@ -132,10 +132,18 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                               width: 2,
                             ),
                           ),
-                          child: Icon(category['icon'], size: 30, color: category['color']),
+                          child: Icon(
+                            category['icon'],
+                            size: 30,
+                            color: category['color'],
+                          ),
                         ),
                         const SizedBox(height: 8),
-                        Text(category['name'], textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
+                        Text(
+                          category['name'],
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 12),
+                        ),
                       ],
                     ),
                   );
@@ -157,7 +165,9 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
       _showMessage("Vui lòng chọn danh mục chi!");
       return;
     }
-    if (dateController.text.isEmpty || amountController.text.isEmpty || reasonController.text.isEmpty) {
+    if (dateController.text.isEmpty ||
+        amountController.text.isEmpty ||
+        reasonController.text.isEmpty) {
       _showMessage("Vui lòng điền đầy đủ thông tin!");
       return;
     }
@@ -178,9 +188,15 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   }
 
   void _editExpense(int index) {
-    final tempDateController = TextEditingController(text: expenses[index]['date']);
-    final tempAmountController = TextEditingController(text: expenses[index]['amount']);
-    final tempReasonController = TextEditingController(text: expenses[index]['reason']);
+    final tempDateController = TextEditingController(
+      text: expenses[index]['date'],
+    );
+    final tempAmountController = TextEditingController(
+      text: expenses[index]['amount'],
+    );
+    final tempReasonController = TextEditingController(
+      text: expenses[index]['reason'],
+    );
     Map<String, dynamic>? tempCategory = expenses[index]['category'];
 
     showDialog(
@@ -195,7 +211,11 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                 TextField(
                   controller: tempDateController,
                   readOnly: true,
-                  decoration: const InputDecoration(labelText: 'Ngày chi', border: OutlineInputBorder(), suffixIcon: Icon(Icons.calendar_today)),
+                  decoration: const InputDecoration(
+                    labelText: 'Ngày chi',
+                    border: OutlineInputBorder(),
+                    suffixIcon: Icon(Icons.calendar_today),
+                  ),
                   onTap: () async {
                     final DateTime? picked = await showDatePicker(
                       context: context,
@@ -205,7 +225,8 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                     );
                     if (picked != null) {
                       setDialogState(() {
-                        tempDateController.text = '${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}';
+                        tempDateController.text =
+                            '${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}';
                       });
                     }
                   },
@@ -218,14 +239,21 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                   },
                   child: Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(8)),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     child: Row(
                       children: [
                         if (tempCategory != null) ...[
-                          Icon(tempCategory['icon'], color: tempCategory['color']),
+                          Icon(
+                            tempCategory['icon'],
+                            color: tempCategory['color'],
+                          ),
                           const SizedBox(width: 10),
                           Text(tempCategory['name']),
-                        ] else const Text('Chọn danh mục'),
+                        ] else
+                          const Text('Chọn danh mục'),
                         const Spacer(),
                         const Icon(Icons.arrow_drop_down),
                       ],
@@ -233,22 +261,43 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                TextField(controller: tempAmountController, decoration: const InputDecoration(labelText: 'Số tiền', border: OutlineInputBorder()), keyboardType: TextInputType.number),
+                TextField(
+                  controller: tempAmountController,
+                  decoration: const InputDecoration(
+                    labelText: 'Số tiền',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
                 const SizedBox(height: 10),
-                TextField(controller: tempReasonController, decoration: const InputDecoration(labelText: 'Lý do chi', border: OutlineInputBorder())),
+                TextField(
+                  controller: tempReasonController,
+                  decoration: const InputDecoration(
+                    labelText: 'Lý do chi',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
               ],
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy')),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Hủy'),
+            ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1976D2)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1976D2),
+              ),
               onPressed: () {
                 setState(() {
                   expenses[index] = {
                     'house': expenses[index]['house'],
                     'date': tempDateController.text,
-                    'amount': tempAmountController.text.replaceAll(RegExp(r'[^0-9]'), ''),
+                    'amount': tempAmountController.text.replaceAll(
+                      RegExp(r'[^0-9]'),
+                      '',
+                    ),
                     'reason': tempReasonController.text,
                     'category': tempCategory,
                   };
@@ -271,11 +320,16 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
         title: const Text('Xác nhận xóa'),
         content: const Text('Bạn có chắc muốn xóa khoản chi này?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Hủy'),
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () {
-              setState(() { expenses.removeAt(index); });
+              setState(() {
+                expenses.removeAt(index);
+              });
               Navigator.pop(context);
               _showMessage("Đã xóa!");
             },
@@ -287,14 +341,18 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), duration: const Duration(seconds: 2)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
+    );
   }
 
   String _formatCurrency(String amount) {
     try {
       final number = int.parse(amount.replaceAll(RegExp(r'[^0-9]'), ''));
       return '${number.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')} đ';
-    } catch (e) { return '0 đ'; }
+    } catch (e) {
+      return '0 đ';
+    }
   }
 
   @override
@@ -302,7 +360,10 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF1976D2),
-        leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white), onPressed: () => Navigator.pop(context)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: const Text("Quản lý chi", style: TextStyle(color: Colors.white)),
       ),
       body: Padding(
@@ -310,11 +371,49 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Chọn căn nhà để quản lý chi", style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              "Chọn căn nhà để quản lý chi",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             GestureDetector(
               onTap: () {
                 // Hiển thị chọn nhà (Sheet)
+                showModalBottomSheet(
+                  context: context,
+                  builder: (context) => Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ListTile(
+                        title: const Text('Tất cả các nhà'),
+                        onTap: () {
+                          setState(() {
+                            selectedHouse = "Tất cả các nhà";
+                          });
+                          Navigator.pop(context);
+                        },
+                      ),
+                      ListTile(
+                        title: const Text('123 Nguyễn Đình Chiểu, P5, Q3'),
+                        onTap: () {
+                          setState(() {
+                            selectedHouse = '123 Nguyễn Đình Chiểu, P5, Q3';
+                          });
+                          Navigator.pop(context);
+                        },
+                      ),
+                      ListTile(
+                        title: const Text('456 Lê Văn Sỹ, P13, Q3'),
+                        onTap: () {
+                          setState(() {
+                            selectedHouse = '456 Lê Văn Sỹ, P13, Q3';
+                          });
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
+                );
               },
               child: fakeDropdown(selectedHouse),
             ),
@@ -325,10 +424,24 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                   child: TextField(
                     controller: dateController,
                     readOnly: true,
-                    decoration: InputDecoration(labelText: 'Ngày chi', border: OutlineInputBorder(borderRadius: BorderRadius.circular(8))),
+                    decoration: InputDecoration(
+                      labelText: 'Ngày chi',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
                     onTap: () async {
-                      final date = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(2000), lastDate: DateTime(2100));
-                      if (date != null) setState(() { dateController.text = '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}'; });
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                      );
+                      if (date != null)
+                        setState(() {
+                          dateController.text =
+                              '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+                        });
                     },
                   ),
                 ),
@@ -337,15 +450,36 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                   child: GestureDetector(
                     onTap: _showCategorySelector,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-                      decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade400), borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade400),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       child: Row(
                         children: [
                           if (selectedCategory != null) ...[
-                            Icon(selectedCategory!['icon'], color: selectedCategory!['color'], size: 20),
+                            Icon(
+                              selectedCategory!['icon'],
+                              color: selectedCategory!['color'],
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
-                            Expanded(child: Text(selectedCategory!['name'], overflow: TextOverflow.ellipsis)),
-                          ] else const Expanded(child: Text('Danh mục chi', style: TextStyle(color: Colors.grey))),
+                            Expanded(
+                              child: Text(
+                                selectedCategory!['name'],
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ] else
+                            const Expanded(
+                              child: Text(
+                                'Danh mục chi',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ),
                           const Icon(Icons.arrow_drop_down, size: 20),
                         ],
                       ),
@@ -357,19 +491,50 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
             const SizedBox(height: 10),
             Row(
               children: [
-                Expanded(flex: 2, child: TextField(controller: amountController, decoration: const InputDecoration(labelText: 'Số tiền chi', border: OutlineInputBorder()), keyboardType: TextInputType.number)),
+                Expanded(
+                  flex: 2,
+                  child: TextField(
+                    controller: amountController,
+                    decoration: const InputDecoration(
+                      labelText: 'Số tiền chi',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
                 const SizedBox(width: 8),
-                Expanded(flex: 3, child: TextField(controller: reasonController, decoration: const InputDecoration(labelText: 'Lý do chi', border: OutlineInputBorder()))),
+                Expanded(
+                  flex: 3,
+                  child: TextField(
+                    controller: reasonController,
+                    decoration: const InputDecoration(
+                      labelText: 'Lý do chi',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
                 const SizedBox(width: 8),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1976D2), padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1976D2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                  ),
                   onPressed: _addExpense,
-                  child: const Text("Lưu", style: TextStyle(color: Colors.white)),
+                  child: const Text(
+                    "Lưu",
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 20),
-            const Text("Danh sách phí đã chi", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const Text(
+              "Danh sách phí đã chi",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
             const SizedBox(height: 10),
             Expanded(
               child: filteredExpenses.isEmpty
@@ -385,21 +550,51 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                           child: ListTile(
                             leading: Container(
                               padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(color: category['color'].withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
-                              child: Icon(category['icon'], color: category['color']),
+                              decoration: BoxDecoration(
+                                color: category['color'].withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(
+                                category['icon'],
+                                color: category['color'],
+                              ),
                             ),
-                            title: Text(expense['reason'], style: const TextStyle(fontWeight: FontWeight.bold)),
-                            subtitle: Text('${category['name']} • ${expense['date']}\n🏠 ${expense['house']}'),
+                            title: Text(
+                              expense['reason'],
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(
+                              '${category['name']} • ${expense['date']}\n🏠 ${expense['house']}',
+                            ),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(_formatCurrency(expense['amount']), style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                                Text(
+                                  _formatCurrency(expense['amount']),
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                                 PopupMenuButton(
                                   itemBuilder: (context) => [
-                                    const PopupMenuItem(value: 'edit', child: Text('Sửa')),
-                                    const PopupMenuItem(value: 'delete', child: Text('Xóa', style: TextStyle(color: Colors.red))),
+                                    const PopupMenuItem(
+                                      value: 'edit',
+                                      child: Text('Sửa'),
+                                    ),
+                                    const PopupMenuItem(
+                                      value: 'delete',
+                                      child: Text(
+                                        'Xóa',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
                                   ],
-                                  onSelected: (val) => val == 'edit' ? _editExpense(actualIndex) : _deleteExpense(actualIndex),
+                                  onSelected: (val) => val == 'edit'
+                                      ? _editExpense(actualIndex)
+                                      : _deleteExpense(actualIndex),
                                 ),
                               ],
                             ),

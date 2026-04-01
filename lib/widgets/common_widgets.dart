@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
 
-Widget fakeDropdown(String label, {IconData icon = Icons.keyboard_arrow_down}) {
+// Thay thế fakeDropdown bằng một Container đơn giản
+Widget fakeDropdown(String title) {
   return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+    padding: const EdgeInsets.all(12),
     decoration: BoxDecoration(
-      color: Colors.white,
+      border: Border.all(color: Colors.grey),
       borderRadius: BorderRadius.circular(8),
-      border: Border.all(color: Colors.grey.shade400),
     ),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-        ),
-        Icon(icon, size: 20),
-      ],
+      children: [Text(title), const Icon(Icons.arrow_drop_down)],
     ),
   );
 }
