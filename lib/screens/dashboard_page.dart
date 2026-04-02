@@ -1,97 +1,125 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+// Import tất cả các màn hình của bạn
 import 'house_list_page.dart';
 import 'expense_page.dart';
 import 'report_page.dart';
 import 'fee_entry_page.dart';
+import 'incident_page.dart'; // Đảm bảo bạn đã có file này
 import 'backup_restore_page.dart';
 import 'contact_page.dart';
-import 'incident_page.dart';
 
 class MainDashboard extends StatelessWidget {
   const MainDashboard({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1976D2),
-        title: const Row(
+  // HÀM HIỂN THỊ MENU TÀI KHOẢN KHI BẤM VÀO CHÀO CHỦ NHÀ
+  void _showUserMenu(BuildContext context, User? user) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(25))),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(25),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.home_work, color: Colors.white),
-            SizedBox(width: 10),
-            Text(
-              "QUẢN LÝ TRỌ",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
+            const Icon(Icons.account_circle, size: 60, color: Color(0xFF1976D2)),
+            const SizedBox(height: 10),
+            Text(user?.email ?? "Chủ trọ Admin", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const Text("Hệ thống quản lý chuyên nghiệp", style: TextStyle(color: Colors.grey, fontSize: 12)),
+            const SizedBox(height: 20),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text("ĐĂNG XUẤT", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+              onTap: () async {
+                await FirebaseAuth.instance.signOut();
+                if (context.mounted) Navigator.pop(context); // Đóng menu
+              },
             ),
+            const SizedBox(height: 10),
           ],
         ),
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF2F2F2), // Nền xám nhạt sang trọng
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1976D2),
+        elevation: 0,
+        foregroundColor: Colors.white,
+        title: const Text("QUẢN LÝ TRỌ PRO", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+        centerTitle: true,
+      ),
       body: Column(
         children: [
+          // HEADER TƯƠNG TÁC: CHÀO CHỦ NHÀ + ĐĂNG XUẤT
+          InkWell(
+            onTap: () => _showUserMenu(context, user),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(25),
+              decoration: const BoxDecoration(
+                color: Color(0xFF1976D2),
+                borderRadius: BorderRadius.vertical(bottom: Radius.circular(35)),
+              ),
+              child: Row(
+                children: [
+                  const CircleAvatar(
+                    radius: 28,
+                    backgroundColor: Colors.white24,
+                    child: Icon(Icons.person, color: Colors.white, size: 30),
+                  ),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("Xin chào chủ nhà,", style: TextStyle(color: Colors.white70, fontSize: 13)),
+                        Text(
+                          user?.email?.split('@')[0].toUpperCase() ?? "ADMIN",
+                          style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.keyboard_arrow_down, color: Colors.white70),
+                ],
+              ),
+            ),
+          ),
+
+          // GRID MENU 7 NÚT (SẮP XẾP 3 CỘT)
           Expanded(
             child: GridView.count(
               padding: const EdgeInsets.all(20),
-              crossAxisCount: 3,
-              crossAxisSpacing: 15,
-              mainAxisSpacing: 25,
+              crossAxisCount: 3, // 3 cột cực đẹp
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 15,
               children: [
-                _menuItem(
-                  context,
-                  Icons.home,
-                  "Quản lý nhà,\nphòng, hợp đồng",
-                  const HouseListScreen(),
-                ),
-                _menuItem(
-                  context,
-                  Icons.grid_view,
-                  "Báo phí",
-                  const FeeEntryScreen(),
-                ),
-                _menuItem(
-                  context,
-                  Icons.calculate,
-                  "Quản lý chi",
-                  const ExpenseScreen(),
-                ),
-                _menuItem(
-                  context,
-                  Icons.bar_chart,
-                  "Báo cáo",
-                  const ReportScreen(),
-                ),
-                _menuItem(
-                  context,
-                  Icons.car_repair,
-                  "Quản lý sự cố",
-                  const IncidentScreen(),
-                ),
-                _menuItem(
-                  context,
-                  Icons.sync,
-                  "Sao lưu, phục\nhồi dữ liệu",
-                  const BackupRestoreScreen(),
-                ),
-                _menuItem(
-                  context,
-                  Icons.undo,
-                  "Liên hệ, góp ý",
-                  const ContactScreen(),
-                ),
+                _buildMenuCard(context, "Nhà & Phòng", Icons.home_work, Colors.blue, const HouseListScreen()),
+                _buildMenuCard(context, "Báo phí", Icons.receipt_long, Colors.purple, const FeeEntryScreen()),
+                _buildMenuCard(context, "Quản lý chi", Icons.account_balance_wallet, Colors.redAccent, const ExpenseScreen()),
+                _buildMenuCard(context, "Sự cố", Icons.build_circle_outlined, Colors.deepOrange, const IncidentScreen()),
+                _buildMenuCard(context, "Báo cáo", Icons.bar_chart, Colors.orange, const ReportScreen()),
+                _buildMenuCard(context, "Sao lưu", Icons.cloud_sync, Colors.green, const BackupRestoreScreen()),
+                _buildMenuCard(context, "Góp ý", Icons.feedback_outlined, Colors.teal, const ContactScreen()),
               ],
             ),
           ),
+
+          // PHẦN FOOTER CHỐNG TRÔI
           const Padding(
             padding: EdgeInsets.only(bottom: 20),
             child: Text(
-              "Phiên bản 2.5.3",
-              style: TextStyle(
-                color: Colors.black54,
-                fontWeight: FontWeight.bold,
-              ),
+              "Phiên bản 3.5.0 - Cloud Synchronized",
+              style: TextStyle(color: Colors.grey, fontSize: 11, fontStyle: FontStyle.italic),
             ),
           ),
         ],
@@ -99,36 +127,43 @@ class MainDashboard extends StatelessWidget {
     );
   }
 
-  Widget _menuItem(
-    BuildContext context,
-    IconData icon,
-    String title,
-    Widget? page,
-  ) {
-    return GestureDetector(
-      onTap: () => page != null
-          ? Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => page),
-            )
-          : null,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: const Color(0xFF42A5F5),
-              borderRadius: BorderRadius.circular(15),
+  // WIDGET TẠO THẺ MENU PRO
+  Widget _buildMenuCard(BuildContext context, String title, IconData icon, Color color, Widget page) {
+    return InkWell(
+      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => page)),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
             ),
-            child: Icon(icon, color: Colors.white, size: 30),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-          ),
-        ],
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Icon nằm trong vòng tròn màu mờ
+            CircleAvatar(
+              radius: 25,
+              backgroundColor: color.withOpacity(0.1),
+              child: Icon(icon, color: color, size: 28),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 10,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
