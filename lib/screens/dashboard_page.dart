@@ -17,21 +17,39 @@ class MainDashboard extends StatelessWidget {
   void _showUserMenu(BuildContext context, User? user) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(25))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+      ),
       builder: (context) => Container(
         padding: const EdgeInsets.all(25),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.account_circle, size: 60, color: Color(0xFF1976D2)),
+            const Icon(
+              Icons.account_circle,
+              size: 60,
+              color: Color(0xFF1976D2),
+            ),
             const SizedBox(height: 10),
-            Text(user?.email ?? "Chủ trọ Admin", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            const Text("Hệ thống quản lý chuyên nghiệp", style: TextStyle(color: Colors.grey, fontSize: 12)),
+            Text(
+              user?.email ?? "Chủ trọ Admin",
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const Text(
+              "Hệ thống quản lý chuyên nghiệp",
+              style: TextStyle(color: Colors.grey, fontSize: 12),
+            ),
             const SizedBox(height: 20),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text("ĐĂNG XUẤT", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+              title: const Text(
+                "ĐĂNG XUẤT",
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               onTap: () async {
                 await FirebaseAuth.instance.signOut();
                 if (context.mounted) Navigator.pop(context); // Đóng menu
@@ -54,7 +72,10 @@ class MainDashboard extends StatelessWidget {
         backgroundColor: const Color(0xFF1976D2),
         elevation: 0,
         foregroundColor: Colors.white,
-        title: const Text("QUẢN LÝ TRỌ PRO", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+        title: const Text(
+          "QUẢN LÝ TRỌ HUIT",
+          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),
+        ),
         centerTitle: true,
       ),
       body: Column(
@@ -67,7 +88,9 @@ class MainDashboard extends StatelessWidget {
               padding: const EdgeInsets.all(25),
               decoration: const BoxDecoration(
                 color: Color(0xFF1976D2),
-                borderRadius: BorderRadius.vertical(bottom: Radius.circular(35)),
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(35),
+                ),
               ),
               child: Row(
                 children: [
@@ -81,10 +104,17 @@ class MainDashboard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text("Xin chào chủ nhà,", style: TextStyle(color: Colors.white70, fontSize: 13)),
+                        const Text(
+                          "Xin chào chủ nhà,",
+                          style: TextStyle(color: Colors.white70, fontSize: 13),
+                        ),
                         Text(
-                          user?.email?.split('@')[0].toUpperCase() ?? "ADMIN",
-                          style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                          user?.displayName ?? "ADMIN",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -103,13 +133,55 @@ class MainDashboard extends StatelessWidget {
               crossAxisSpacing: 12,
               mainAxisSpacing: 15,
               children: [
-                _buildMenuCard(context, "Nhà & Phòng", Icons.home_work, Colors.blue, const HouseListScreen()),
-                _buildMenuCard(context, "Báo phí", Icons.receipt_long, Colors.purple, const FeeEntryScreen()),
-                _buildMenuCard(context, "Quản lý chi", Icons.account_balance_wallet, Colors.redAccent, const ExpenseScreen()),
-                _buildMenuCard(context, "Sự cố", Icons.build_circle_outlined, Colors.deepOrange, const IncidentScreen()),
-                _buildMenuCard(context, "Báo cáo", Icons.bar_chart, Colors.orange, const ReportScreen()),
-                _buildMenuCard(context, "Sao lưu", Icons.cloud_sync, Colors.green, const BackupRestoreScreen()),
-                _buildMenuCard(context, "Góp ý", Icons.feedback_outlined, Colors.teal, const ContactScreen()),
+                _buildMenuCard(
+                  context,
+                  "Nhà & Phòng",
+                  Icons.home_work,
+                  Colors.blue,
+                  const HouseListScreen(),
+                ),
+                _buildMenuCard(
+                  context,
+                  "Báo phí",
+                  Icons.receipt_long,
+                  Colors.purple,
+                  const FeeEntryScreen(),
+                ),
+                _buildMenuCard(
+                  context,
+                  "Quản lý chi",
+                  Icons.account_balance_wallet,
+                  Colors.redAccent,
+                  const ExpenseScreen(),
+                ),
+                _buildMenuCard(
+                  context,
+                  "Sự cố",
+                  Icons.build_circle_outlined,
+                  Colors.deepOrange,
+                  const IncidentScreen(),
+                ),
+                _buildMenuCard(
+                  context,
+                  "Báo cáo",
+                  Icons.bar_chart,
+                  Colors.orange,
+                  const ReportScreen(),
+                ),
+                _buildMenuCard(
+                  context,
+                  "Sao lưu",
+                  Icons.cloud_sync,
+                  Colors.green,
+                  const BackupRestoreScreen(),
+                ),
+                _buildMenuCard(
+                  context,
+                  "Góp ý",
+                  Icons.feedback_outlined,
+                  Colors.teal,
+                  const ContactScreen(),
+                ),
               ],
             ),
           ),
@@ -119,7 +191,11 @@ class MainDashboard extends StatelessWidget {
             padding: EdgeInsets.only(bottom: 20),
             child: Text(
               "Phiên bản 3.5.0 - Cloud Synchronized",
-              style: TextStyle(color: Colors.grey, fontSize: 11, fontStyle: FontStyle.italic),
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 11,
+                fontStyle: FontStyle.italic,
+              ),
             ),
           ),
         ],
@@ -128,9 +204,18 @@ class MainDashboard extends StatelessWidget {
   }
 
   // WIDGET TẠO THẺ MENU PRO
-  Widget _buildMenuCard(BuildContext context, String title, IconData icon, Color color, Widget page) {
+  Widget _buildMenuCard(
+    BuildContext context,
+    String title,
+    IconData icon,
+    Color color,
+    Widget page,
+  ) {
     return InkWell(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => page)),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => page),
+      ),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
