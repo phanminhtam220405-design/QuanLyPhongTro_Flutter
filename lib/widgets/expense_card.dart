@@ -67,10 +67,7 @@ class ExpenseCard extends StatelessWidget {
             PopupMenuButton(
               icon: const Icon(Icons.more_vert),
               itemBuilder: (context) => [
-                const PopupMenuItem(
-                  value: 'edit',
-                  child: Text('Sửa'),
-                ),
+                const PopupMenuItem(value: 'edit', child: Text('Sửa')),
                 const PopupMenuItem(
                   value: 'delete',
                   child: Text('Xóa', style: TextStyle(color: Colors.red)),
