@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import '../widgets/expense_card.dart';
 import '../widgets/common_widgets.dart';
+import 'expense/expense_model.dart';
+import 'expense/expense_utils.dart';
+import 'expense/expense_dialogs.dart';
 
 class ExpenseScreen extends StatefulWidget {
   const ExpenseScreen({super.key});
@@ -9,13 +13,11 @@ class ExpenseScreen extends StatefulWidget {
 }
 
 class _ExpenseScreenState extends State<ExpenseScreen> {
-  // Biến lưu trữ căn nhà được chọn
   String selectedHouse = "Chọn căn nhà";
   List<Map<String, dynamic>> expenses = [];
   List<Map<String, dynamic>> categories = [];
   Map<String, dynamic>? selectedCategory;
 
-  // Controllers cho form thêm/sửa chi
   final TextEditingController dateController = TextEditingController();
   final TextEditingController amountController = TextEditingController();
   final TextEditingController reasonController = TextEditingController();
@@ -23,142 +25,45 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
   @override
   void initState() {
     super.initState();
-
-    // Danh mục chi tiêu mặc định
-    categories = [
-      {'icon': Icons.water_drop, 'name': 'Tiền nước', 'color': Colors.blue},
-      {'icon': Icons.bolt, 'name': 'Tiền điện', 'color': Colors.orange},
-      {'icon': Icons.wifi, 'name': 'Internet', 'color': Colors.purple},
-      {'icon': Icons.home, 'name': 'Tiền nhà', 'color': Colors.green},
-      {'icon': Icons.build, 'name': 'Sửa chữa', 'color': Colors.brown},
-      {'icon': Icons.more_horiz, 'name': 'Khác', 'color': Colors.teal},
-    ];
-
-    // Dữ liệu mẫu ban đầu
-    expenses = [
-      {
-        'house': '123 Nguyễn Đình Chiểu, P5, Q3',
-        'date': '01/03/2026',
-        'amount': '500000',
-        'reason': 'Sửa chữa ống nước',
-        'category': categories[4],
-      },
-      {
-        'house': '123 Nguyễn Đình Chiểu, P5, Q3',
-        'date': '05/03/2026',
-        'amount': '1200000',
-        'reason': 'Mua thiết bị điện',
-        'category': categories[1],
-      },
-      {
-        'house': '456 Lê Văn Sỹ, P13, Q3',
-        'date': '03/03/2026',
-        'amount': '300000',
-        'reason': 'Vệ sinh định kỳ',
-        'category': categories[5],
-      },
-    ];
-    dateController.text = _getCurrentDate();
+    categories = ExpenseCategories.getDefaults();
+    expenses = ExpenseCategories.getSampleExpenses(categories);
+    dateController.text = ExpenseUtils.getCurrentDate();
     amountController.text = '0';
-  }
-
-  String _getCurrentDate() {
-    final now = DateTime.now();
-    return '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
   }
 
   // Lọc chi phí theo căn nhà được chọn
   List<Map<String, dynamic>> get filteredExpenses {
-    if (selectedHouse == "Chọn căn nhà" || selectedHouse == "Tất cả các nhà") {
-      return expenses;
-    }
-    return expenses
-        .where((expense) => expense['house'] == selectedHouse)
-        .toList();
+    return ExpenseUtils.filterExpensesByHouse(expenses, selectedHouse);
   }
 
-  // Hiển thị bottom sheet chọn danh mục
+  // Tính tổng chi tiêu
+  String get totalExpense {
+    return ExpenseUtils.calculateTotal(filteredExpenses);
+  }
+
+  // Hiển thị bottom sheet để chọn danh mục chi
   void _showCategorySelector() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (modalContext) => Container(
-        padding: const EdgeInsets.all(20),
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.7,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Chọn danh mục chi',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const Divider(),
-            Expanded(
-              child: GridView.builder(
-                shrinkWrap: true,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 15,
-                  mainAxisSpacing: 15,
-                  childAspectRatio: 1.2,
-                ),
-                itemCount: categories.length,
-                itemBuilder: (context, index) {
-                  final category = categories[index];
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedCategory = category;
-                      });
-                      Navigator.pop(modalContext);
-                    },
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(15),
-                          decoration: BoxDecoration(
-                            color: category['color'].withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: selectedCategory == category
-                                  ? category['color']
-                                  : Colors.transparent,
-                              width: 2,
-                            ),
-                          ),
-                          child: Icon(
-                            category['icon'],
-                            size: 30,
-                            color: category['color'],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          category['name'],
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+    ExpenseDialogs.showCategorySelector(
+      context,
+      categories,
+      selectedCategory,
+      (category) {
+        setState(() {
+          selectedCategory = category;
+        });
+      },
     );
   }
 
+  // Hàm thêm khoản chi mới
   void _addExpense() {
+    // Kiểm tra điều kiện trước khi thêm
     if (selectedHouse == "Chọn căn nhà") {
       _showMessage("Vui lòng chọn căn nhà!");
+      return;
+    }
+    if (selectedHouse == "Tất cả các nhà") {
+      _showMessage("Vui lòng chọn một căn nhà cụ thể để thêm chi!");
       return;
     }
     if (selectedCategory == null) {
@@ -172,11 +77,15 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
       return;
     }
 
+    // Thêm khoản chi mới vào danh sách
     setState(() {
       expenses.insert(0, {
-        'house': selectedHouse,
+        'house': selectedHouse, // Lưu thông tin căn nhà
         'date': dateController.text,
-        'amount': amountController.text.replaceAll(RegExp(r'[^0-9]'), ''),
+        'amount': amountController.text.replaceAll(
+          RegExp(r'[^0-9]'),
+          '',
+        ), // Lưu số tiền dưới dạng chuỗi chỉ chứa số
         'reason': reasonController.text,
         'category': selectedCategory,
       });
@@ -187,172 +96,39 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     _showMessage("Đã thêm khoản chi!");
   }
 
+  // Hàm sửa khoản chi
   void _editExpense(int index) {
-    final tempDateController = TextEditingController(
-      text: expenses[index]['date'],
-    );
-    final tempAmountController = TextEditingController(
-      text: expenses[index]['amount'],
-    );
-    final tempReasonController = TextEditingController(
-      text: expenses[index]['reason'],
-    );
-    Map<String, dynamic>? tempCategory = expenses[index]['category'];
-
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Sửa khoản chi'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: tempDateController,
-                  readOnly: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Ngày chi',
-                    border: OutlineInputBorder(),
-                    suffixIcon: Icon(Icons.calendar_today),
-                  ),
-                  onTap: () async {
-                    final DateTime? picked = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2100),
-                    );
-                    if (picked != null) {
-                      setDialogState(() {
-                        tempDateController.text =
-                            '${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}';
-                      });
-                    }
-                  },
-                ),
-                const SizedBox(height: 10),
-                // Chọn nhanh danh mục trong dialog
-                GestureDetector(
-                  onTap: () {
-                    // Logic tương tự _showCategorySelector nhưng gọi setDialogState
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        if (tempCategory != null) ...[
-                          Icon(
-                            tempCategory['icon'],
-                            color: tempCategory['color'],
-                          ),
-                          const SizedBox(width: 10),
-                          Text(tempCategory['name']),
-                        ] else
-                          const Text('Chọn danh mục'),
-                        const Spacer(),
-                        const Icon(Icons.arrow_drop_down),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: tempAmountController,
-                  decoration: const InputDecoration(
-                    labelText: 'Số tiền',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: tempReasonController,
-                  decoration: const InputDecoration(
-                    labelText: 'Lý do chi',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Hủy'),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1976D2),
-              ),
-              onPressed: () {
-                setState(() {
-                  expenses[index] = {
-                    'house': expenses[index]['house'],
-                    'date': tempDateController.text,
-                    'amount': tempAmountController.text.replaceAll(
-                      RegExp(r'[^0-9]'),
-                      '',
-                    ),
-                    'reason': tempReasonController.text,
-                    'category': tempCategory,
-                  };
-                });
-                Navigator.pop(context);
-                _showMessage("Đã cập nhật!");
-              },
-              child: const Text('Lưu', style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        ),
-      ),
+    ExpenseDialogs.showEditExpenseDialog(
+      context,
+      expenses[index],
+      categories,
+      (updatedExpense) {
+        setState(() {
+          expenses[index] = updatedExpense;
+        });
+        _showMessage("Đã cập nhật!");
+      },
     );
   }
 
+  // Hàm xóa khoản chi
   void _deleteExpense(int index) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Xác nhận xóa'),
-        content: const Text('Bạn có chắc muốn xóa khoản chi này?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () {
-              setState(() {
-                expenses.removeAt(index);
-              });
-              Navigator.pop(context);
-              _showMessage("Đã xóa!");
-            },
-            child: const Text('Xóa', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
+    ExpenseDialogs.showDeleteConfirmation(
+      context,
+      () {
+        setState(() {
+          expenses.removeAt(index);
+        });
+        _showMessage("Đã xóa!");
+      },
     );
   }
 
+  // Hàm hiển thị thông báo
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
     );
-  }
-
-  String _formatCurrency(String amount) {
-    try {
-      final number = int.parse(amount.replaceAll(RegExp(r'[^0-9]'), ''));
-      return '${number.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')} đ';
-    } catch (e) {
-      return '0 đ';
-    }
   }
 
   @override
@@ -375,61 +151,42 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
               "Chọn căn nhà để quản lý chi",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
+            // Dropdown chọn căn nhà
             const SizedBox(height: 8),
             GestureDetector(
               onTap: () {
-                // Hiển thị chọn nhà (Sheet)
-                showModalBottomSheet(
-                  context: context,
-                  builder: (context) => Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ListTile(
-                        title: const Text('Tất cả các nhà'),
-                        onTap: () {
-                          setState(() {
-                            selectedHouse = "Tất cả các nhà";
-                          });
-                          Navigator.pop(context);
-                        },
-                      ),
-                      ListTile(
-                        title: const Text('123 Nguyễn Đình Chiểu, P5, Q3'),
-                        onTap: () {
-                          setState(() {
-                            selectedHouse = '123 Nguyễn Đình Chiểu, P5, Q3';
-                          });
-                          Navigator.pop(context);
-                        },
-                      ),
-                      ListTile(
-                        title: const Text('456 Lê Văn Sỹ, P13, Q3'),
-                        onTap: () {
-                          setState(() {
-                            selectedHouse = '456 Lê Văn Sỹ, P13, Q3';
-                          });
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ],
-                  ),
+                ExpenseDialogs.showHouseSelector(
+                  context,
+                  selectedHouse,
+                  (house) {
+                    setState(() {
+                      selectedHouse = house;
+                    });
+                  },
                 );
               },
-              child: fakeDropdown(selectedHouse),
+              child: ExpenseUtils.fakeDropdown(selectedHouse),
             ),
             const SizedBox(height: 20),
+
+            // Hàng 1: Ngày chi + Danh mục chi
             Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: dateController,
-                    readOnly: true,
                     decoration: InputDecoration(
                       labelText: 'Ngày chi',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 12,
+                      ),
                     ),
+                    readOnly: true,
+                    // Hiển thị DatePicker khi bấm vào TextField
                     onTap: () async {
                       final date = await showDatePicker(
                         context: context,
@@ -437,14 +194,17 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                         firstDate: DateTime(2000),
                         lastDate: DateTime(2100),
                       );
-                      if (date != null)
+                      // Cập nhật ngày đã chọn vào TextField
+                      if (date != null) {
                         setState(() {
                           dateController.text =
                               '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
                         });
+                      }
                     },
                   ),
                 ),
+                // Danh mục chi tiêu
                 const SizedBox(width: 8),
                 Expanded(
                   child: GestureDetector(
@@ -470,6 +230,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                             Expanded(
                               child: Text(
                                 selectedCategory!['name'],
+                                style: const TextStyle(fontSize: 14),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -477,7 +238,10 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                             const Expanded(
                               child: Text(
                                 'Danh mục chi',
-                                style: TextStyle(color: Colors.grey),
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
                           const Icon(Icons.arrow_drop_down, size: 20),
@@ -489,17 +253,31 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
               ],
             ),
             const SizedBox(height: 10),
+
+            // Hàng 2: Số tiền + Lý do + Nút Lưu
             Row(
               children: [
                 Expanded(
                   flex: 2,
                   child: TextField(
                     controller: amountController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Số tiền chi',
-                      border: OutlineInputBorder(),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 12,
+                      ),
                     ),
                     keyboardType: TextInputType.number,
+                    onTap: () {
+                      // Xóa số 0 khi bấm vào
+                      if (amountController.text == '0') {
+                        amountController.clear();
+                      }
+                    },
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -507,9 +285,15 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                   flex: 3,
                   child: TextField(
                     controller: reasonController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Lý do chi',
-                      border: OutlineInputBorder(),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 12,
+                      ),
                     ),
                   ),
                 ),
@@ -517,6 +301,9 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1976D2),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 16,
@@ -531,6 +318,55 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
               ],
             ),
             const SizedBox(height: 20),
+            // Hiển thị tổng chi tiêu
+            Container(
+              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.only(bottom: 15),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.red.shade400, Colors.red.shade600],
+                ),
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.red.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween, // Đẩy 2 cụm ra 2 đầu
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.account_balance_wallet, color: Colors.white, size: 20),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Tổng chi tiêu:',
+                        style: TextStyle(
+                          color: Colors.white, 
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: Text(
+                      totalExpense,
+                      textAlign: TextAlign.end, // Căn lề phải
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Danh sách các khoản chi đã thêm
             const Text(
               "Danh sách phí đã chi",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -543,62 +379,13 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                       itemCount: filteredExpenses.length,
                       itemBuilder: (context, index) {
                         final expense = filteredExpenses[index];
-                        final category = expense['category'];
                         final actualIndex = expenses.indexOf(expense);
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          child: ListTile(
-                            leading: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: category['color'].withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Icon(
-                                category['icon'],
-                                color: category['color'],
-                              ),
-                            ),
-                            title: Text(
-                              expense['reason'],
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            subtitle: Text(
-                              '${category['name']} • ${expense['date']}\n🏠 ${expense['house']}',
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  _formatCurrency(expense['amount']),
-                                  style: const TextStyle(
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                PopupMenuButton(
-                                  itemBuilder: (context) => [
-                                    const PopupMenuItem(
-                                      value: 'edit',
-                                      child: Text('Sửa'),
-                                    ),
-                                    const PopupMenuItem(
-                                      value: 'delete',
-                                      child: Text(
-                                        'Xóa',
-                                        style: TextStyle(color: Colors.red),
-                                      ),
-                                    ),
-                                  ],
-                                  onSelected: (val) => val == 'edit'
-                                      ? _editExpense(actualIndex)
-                                      : _deleteExpense(actualIndex),
-                                ),
-                              ],
-                            ),
-                          ),
+
+                        return ExpenseCard(
+                          expense: expense,
+                          formatCurrency: ExpenseUtils.formatCurrency,
+                          onEdit: () => _editExpense(actualIndex),
+                          onDelete: () => _deleteExpense(actualIndex),
                         );
                       },
                     ),
