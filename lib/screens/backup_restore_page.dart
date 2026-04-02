@@ -6,60 +6,43 @@ class BackupRestoreScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1976D2),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text("Sao lưu & Phục hồi", style: TextStyle(color: Colors.white, fontSize: 18)),
-      ),
+      backgroundColor: const Color(0xFFF2F2F2),
+      appBar: AppBar(backgroundColor: const Color(0xFF1976D2), foregroundColor: Colors.white, title: const Text("Sao lưu & Bảo mật")),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("SAO LƯU DỮ LIỆU", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1976D2))),
+            const Icon(Icons.verified_user, size: 80, color: Colors.green),
+            const SizedBox(height: 20),
+            const Text("DỮ LIỆU ĐÃ ĐƯỢC BẢO VỆ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             const SizedBox(height: 10),
-            _backupCard(Icons.cloud_upload, "Sao lưu lên Google Drive", "An toàn, tự động đồng bộ qua email", Colors.blue),
-            _backupCard(Icons.storage, "Lưu vào bộ nhớ máy", "Tạo file backup nội bộ trên điện thoại", Colors.blueGrey),
+            const Text("Mọi thông tin nhà trọ của bạn đều được tự động đồng bộ hóa với hệ thống Cloud Firebase theo thời gian thực.", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
             const SizedBox(height: 30),
-            const Text("PHỤC HỒI DỮ LIỆU", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.red)),
-            const SizedBox(height: 10),
-            _backupCard(Icons.settings_backup_restore, "Phục hồi từ Cloud", "Lấy lại dữ liệu từ Google Drive", Colors.orange),
-            _backupCard(Icons.file_present, "Chọn file từ máy", "Chọn file backup có sẵn trong máy", Colors.green),
+            _infoCard("Lần đồng bộ cuối", "Vừa xong", Icons.access_time),
+            _infoCard("Trạng thái", "An toàn (100%)", Icons.check_circle_outline),
             const Spacer(),
-            Container(
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.grey.shade300),
+            SizedBox(
+              width: double.infinity, height: 50,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1976D2)),
+                onPressed: () {}, 
+                icon: const Icon(Icons.sync, color: Colors.white), 
+                label: const Text("KIỂM TRA ĐỒNG BỘ", style: TextStyle(color: Colors.white))
               ),
-              child: const Row(
-                children: [
-                  Icon(Icons.info, color: Colors.grey),
-                  SizedBox(width: 10),
-                  Expanded(child: Text("Lần sao lưu cuối cùng: 08:45 - 08/03/2026", style: TextStyle(color: Colors.black54, fontSize: 13))),
-                ],
-              ),
-            ),
+            )
           ],
         ),
       ),
     );
   }
 
-  Widget _backupCard(IconData icon, String title, String sub, Color color) {
+  Widget _infoCard(String t, String v, IconData i) {
     return Card(
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 10),
       child: ListTile(
-        leading: CircleAvatar(backgroundColor: color.withOpacity(0.1), child: Icon(icon, color: color)),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(sub, style: const TextStyle(fontSize: 12)),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () {},
+        leading: Icon(i, color: Colors.blue),
+        title: Text(t, style: const TextStyle(fontSize: 14)),
+        trailing: Text(v, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
       ),
     );
   }

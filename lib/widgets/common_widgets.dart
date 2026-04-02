@@ -1,40 +1,45 @@
 import 'package:flutter/material.dart';
 
-// Thay thế fakeDropdown bằng một Container đơn giản
-Widget fakeDropdown(String title) {
+// Widget ô nhập liệu trắng bo góc dùng chung
+Widget whiteInput(String label, String hint, TextEditingController? controller, {bool isNumber = false}) {
   return Container(
-    padding: const EdgeInsets.all(12),
+    padding: const EdgeInsets.symmetric(horizontal: 12),
     decoration: BoxDecoration(
-      border: Border.all(color: Colors.grey),
-      borderRadius: BorderRadius.circular(8),
+      color: Colors.white, 
+      borderRadius: BorderRadius.circular(12), 
+      border: Border.all(color: Colors.grey.shade300)
     ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [Text(title), const Icon(Icons.arrow_drop_down)],
+    child: TextField(
+      controller: controller,
+      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+      decoration: InputDecoration(
+        labelText: label, 
+        hintText: hint, 
+        border: InputBorder.none,
+        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.blueGrey)
+      ),
     ),
   );
 }
 
-Widget fakeInput(String label, String hint) {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(8),
-      border: Border.all(color: Colors.grey.shade400),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
-        ),
-        Text(
-          hint.isEmpty ? "..." : hint,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ],
+// Widget chọn nhanh (Dropdown giả)
+Widget whiteDropdown(String label, String value, VoidCallback onTap) {
+  return GestureDetector(
+    onTap: onTap,
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+      decoration: BoxDecoration(
+        color: Colors.white, 
+        borderRadius: BorderRadius.circular(12), 
+        border: Border.all(color: Colors.grey.shade300)
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+          const Icon(Icons.arrow_drop_down, color: Colors.blue),
+        ],
+      ),
     ),
   );
 }
@@ -47,16 +52,9 @@ class EmptyDataWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.face, size: 60, color: Colors.grey),
+          Icon(Icons.inbox_rounded, size: 60, color: Colors.grey),
           SizedBox(height: 10),
-          Text(
-            "Chưa có dữ liệu!",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
+          Text("Chưa có dữ liệu!", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
         ],
       ),
     );

@@ -1,85 +1,215 @@
 import 'package:flutter/material.dart';
-import '../widgets/common_widgets.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class FeeEntryScreen extends StatelessWidget {
+class FeeEntryScreen extends StatefulWidget {
   const FeeEntryScreen({super.key});
 
   @override
+  State<FeeEntryScreen> createState() => _FeeEntryScreenState();
+}
+
+class _FeeEntryScreenState extends State<FeeEntryScreen> {
+  String? selectedHouseId;
+  String? selectedHouseAddr;
+  DateTime selectedDate = DateTime.now();
+  final uid = FirebaseAuth.instance.currentUser!.uid;
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1976D2),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+    return DefaultTabController(
+      length: 4,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF2F2F2),
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF1976D2),
+          foregroundColor: Colors.white,
+          title: const Text("Thống kê báo phí"),
         ),
-        title: const Text(
-          "Lập hóa đơn / Báo phí",
-          style: TextStyle(color: Colors.white, fontSize: 18),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        body: Column(
           children: [
-            fakeDropdown("Chọn căn nhà"),
-            const SizedBox(height: 10),
-            fakeDropdown("Chọn phòng (Tất cả)"),
-            const SizedBox(height: 20),
-            const Text(
-              "Chỉ số Điện (Kwh)",
-              style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1976D2)),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(child: fakeInput("Chỉ số cũ", "1.250")),
-                const SizedBox(width: 10),
-                Expanded(child: fakeInput("Chỉ số mới", "0")),
-              ],
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              "Chỉ số Nước (Khối)",
-              style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1976D2)),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(child: fakeInput("Chỉ số cũ", "450")),
-                const SizedBox(width: 10),
-                Expanded(child: fakeInput("Chỉ số mới", "0")),
-              ],
-            ),
-            const SizedBox(height: 20),
-            fakeInput("Phí dịch vụ khác / Ghi chú", "Nhập nội dung..."),
-            const SizedBox(height: 30),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                onPressed: () {},
-                child: const Text("TÍNH TIỀN & XUẤT HÓA ĐƠN", style: TextStyle(fontWeight: FontWeight.bold)),
+            // KHU VỰC CHỌN NHÀ VÀ THÁNG
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  // Chọn căn nhà (Lấy từ Firebase)
+                  Expanded(
+                    flex: 2,
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance.collection('houses').where('userId', isEqualTo: uid).snapshots(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) return const Text("Đang tải...");
+                        var docs = snapshot.data!.docs;
+                        if (docs.isEmpty) return const Text("Chưa có nhà");
+                        
+                        // Tự động chọn nhà đầu tiên nếu chưa chọn
+                        if (selectedHouseId == null) {
+                          selectedHouseId = docs.first.id;
+                          selectedHouseAddr = docs.first['address'];
+                        }
+
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey.shade300)),
+                          child: DropdownButton<String>(
+                            value: selectedHouseId,
+                            isExpanded: true,
+                            underline: const SizedBox(),
+                            onChanged: (val) {
+                              setState(() {
+                                selectedHouseId = val;
+                                selectedHouseAddr = docs.firstWhere((d) => d.id == val)['address'];
+                              });
+                            },
+                            items: docs.map((d) => DropdownMenuItem(value: d.id, child: Text(d['address'], overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13)))).toList(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Chọn Tháng/Năm
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () async {
+                        // Logic chọn tháng đơn giản (Có thể dùng thư viện month_picker nếu muốn chuyên nghiệp hơn)
+                        final DateTime? picked = await showDatePicker(context: context, initialDate: selectedDate, firstDate: DateTime(2020), lastDate: DateTime(2100));
+                        if (picked != null) setState(() => selectedDate = picked);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey.shade300)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.calendar_month, size: 18, color: Colors.blue),
+                            const SizedBox(width: 5),
+                            Text("${selectedDate.month}/${selectedDate.year}", style: const TextStyle(fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 15),
-            Center(
-              child: TextButton(
-                onPressed: () {},
-                child: const Text(
-                  "Xem Thống kê báo phí / Lịch sử",
-                  style: TextStyle(color: Color(0xFF1976D2), fontWeight: FontWeight.bold),
-                ),
+
+            // TABS TRẠNG THÁI
+            Container(
+              color: Colors.white,
+              child: const TabBar(
+                isScrollable: true,
+                labelColor: Color(0xFF1976D2),
+                unselectedLabelColor: Colors.grey,
+                indicatorColor: Color(0xFF1976D2),
+                labelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                tabs: [
+                  Tab(text: "Chưa báo"),
+                  Tab(text: "Đã báo"),
+                  Tab(text: "Đóng một phần"),
+                  Tab(text: "Đã đóng"),
+                ],
               ),
+            ),
+
+            // NỘI DUNG DANH SÁCH PHÒNG
+            Expanded(
+              child: selectedHouseId == null 
+                ? const Center(child: Text("Vui lòng chọn căn nhà"))
+                : StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance.collection('houses').doc(selectedHouseId).collection('rooms').snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+                      var rooms = snapshot.data!.docs;
+                      if (rooms.isEmpty) return const Center(child: Text("Nhà này chưa có phòng"));
+
+                      return TabBarView(
+                        children: [
+                          _buildRoomList(rooms, "Chưa báo"),
+                          _buildRoomList(rooms, "Đã báo"),
+                          _buildRoomList(rooms, "Đóng một phần"),
+                          _buildRoomList(rooms, "Đã đóng"),
+                        ],
+                      );
+                    },
+                  ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildRoomList(List<DocumentSnapshot> rooms, String status) {
+    return ListView.builder(
+      padding: const EdgeInsets.all(15),
+      itemCount: rooms.length,
+      itemBuilder: (context, index) {
+        var data = rooms[index].data() as Map<String, dynamic>;
+        // Giả sử logic lọc: Chỉ hiện phòng "isRented == true" (đang thuê)
+        if (data['isRented'] != true) return const SizedBox();
+
+        return _buildRoomCard(data['name'] ?? '?', "Khách thuê", "0987xxx", status);
+      },
+    );
+  }
+
+  Widget _buildRoomCard(String roomName, String tenant, String phone, String status) {
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.only(bottom: 15),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: TextButton(
+                    onPressed: () {},
+                    child: const Text("Xem chi tiết", style: TextStyle(color: Colors.red, decoration: TextDecoration.underline, fontSize: 12)),
+                  ),
+                ),
+                Text(roomName, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 5),
+                Text("Người thuê: $tenant - ĐT: $phone", style: const TextStyle(color: Colors.black87)),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 45,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFAB47BC), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Đang lập hóa đơn cho phòng $roomName...")));
+                    },
+                    child: Text("Báo phí tháng ${selectedDate.month} cho khách", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // DẢI RUY BĂNG (RIBBON) - HIỆN KHI CHƯA BÁO PHÍ
+          if (status == "Chưa báo")
+            Positioned(
+              top: 15,
+              left: -25,
+              child: Transform.rotate(
+                angle: -0.7,
+                child: Container(
+                  color: Colors.red,
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 4),
+                  child: const Text(
+                    "Chưa báo phí",
+                    style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

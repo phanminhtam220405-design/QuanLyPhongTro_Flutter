@@ -1,106 +1,54 @@
 import 'package:flutter/material.dart';
-import 'screens/dashboard_page.dart'; 
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
   LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blue, Colors.purple],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        decoration: const BoxDecoration(gradient: LinearGradient(colors: [Colors.blue, Colors.indigo])),
         child: Center(
-          child: SingleChildScrollView(
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              elevation: 10,
-              margin: EdgeInsets.all(20),
-              child: Padding(
-                padding: const EdgeInsets.all(25),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.lock, size: 80, color: Colors.blue),
-                    SizedBox(height: 10),
-
-                    Text(
-                      "ĐĂNG NHẬP",
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 25),
-
-                    TextField(
-                      controller: emailController,
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.email),
-                        labelText: "Email",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 15),
-
-                    TextField(
-                      controller: passwordController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.lock_outline),
-                        labelText: "Mật khẩu",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 25),
-
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MainDashboard(),
-                            ),
+          child: Card(
+            margin: const EdgeInsets.all(25),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            child: Padding(
+              padding: const EdgeInsets.all(25),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.account_circle, size: 80, color: Colors.blue),
+                  const Text("ĐĂNG NHẬP CHỦ TRỌ", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 20),
+                  TextField(controller: emailController, decoration: const InputDecoration(labelText: "Email", border: OutlineInputBorder())),
+                  const SizedBox(height: 10),
+                  TextField(controller: passwordController, obscureText: true, decoration: const InputDecoration(labelText: "Mật khẩu", border: OutlineInputBorder())),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity, height: 50,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        try {
+                          await FirebaseAuth.instance.signInWithEmailAndPassword(
+                            email: emailController.text.trim(),
+                            password: passwordController.text.trim(),
                           );
-                        },
-                        child: Text(
-                          "ĐĂNG NHẬP",
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                    ),
-
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/register');
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Sai Email hoặc Mật khẩu!")));
+                        }
                       },
-                      child: Text("Chưa có tài khoản? Đăng ký"),
+                      child: const Text("ĐĂNG NHẬP"),
                     ),
-                  ],
-                ),
+                  ),
+                  // --- NÚT ĐĂNG KÝ MỚI THÊM ---
+                  TextButton(
+                    onPressed: () => Navigator.pushNamed(context, '/register'),
+                    child: const Text("Chưa có tài khoản? Đăng ký ngay"),
+                  ),
+                ],
               ),
             ),
           ),

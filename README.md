@@ -43,3 +43,15 @@ Cập nhật code mới nhất từ nhóm
     2. git commit -m "Tính năng: Thêm giao diện quản lý sự cố - [Tên của bạn]"
     3. git push origin main
 ```
+
+link firebase: https://console.firebase.google.com/u/0/project/quanlytroapp/authentication/users
+
+chạy lệnh sử dụng firebase:
+```
+node -v   
+npm install -g firebase-tools
+flutter pub global activate flutterfire_cli
+flutter pub add firebase_core firebase_auth cloud_firestore
+```
+
+

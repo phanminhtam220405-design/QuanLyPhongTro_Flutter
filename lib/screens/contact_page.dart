@@ -1,93 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ContactScreen extends StatefulWidget {
+class ContactScreen extends StatelessWidget {
   const ContactScreen({super.key});
 
   @override
-  State<ContactScreen> createState() => _ContactScreenState();
-}
-
-class _ContactScreenState extends State<ContactScreen> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController messageController = TextEditingController();
-  String selectedType = 'Góp ý';
-
-  void _submitFeedback() {
-    if (nameController.text.isEmpty || messageController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng điền đầy đủ họ tên và nội dung!')));
-      return;
-    }
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Gửi thành công!'),
-        content: const Text('Cảm ơn bạn đã gửi phản hồi.'),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              nameController.clear();
-              messageController.clear();
-            },
-            child: const Text('Đóng'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final msg = TextEditingController();
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1976D2),
-        title: const Text('Liên hệ, góp ý', style: TextStyle(color: Colors.white)),
-      ),
+      backgroundColor: const Color(0xFFF2F2F2),
+      appBar: AppBar(backgroundColor: const Color(0xFF1976D2), foregroundColor: Colors.white, title: const Text("Liên hệ & Góp ý")),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    _contactRow(Icons.email, 'Email', 'support@quanlytro.vn'),
-                    _contactRow(Icons.phone, 'Hotline', '1900 xxxx'),
-                  ],
-                ),
+            const Text("Mọi ý kiến của bạn sẽ giúp chúng tôi hoàn thiện ứng dụng tốt hơn.", textAlign: TextAlign.center),
+            const SizedBox(height: 25),
+            // Form trắng bo góc
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade300)),
+              child: Column(
+                children: [
+                  const Row(children: [Icon(Icons.email, color: Colors.blue, size: 18), SizedBox(width: 10), Text("Nội dung góp ý", style: TextStyle(fontWeight: FontWeight.bold))]),
+                  const SizedBox(height: 10),
+                  TextField(controller: msg, maxLines: 6, decoration: const InputDecoration(hintText: "Hãy cho chúng tôi biết bạn cần thêm tính năng gì...", border: InputBorder.none)),
+                  const Divider(),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity, height: 50,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1976D2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                      onPressed: () {
+                        if (msg.text.isNotEmpty) {
+                          FirebaseFirestore.instance.collection('feedback').add({'content': msg.text, 'date': DateTime.now()});
+                          msg.clear();
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Cảm ơn góp ý của bạn!")));
+                        }
+                      },
+                      child: const Text("GỬI GÓP Ý", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ),
+                  )
+                ],
               ),
             ),
-            const SizedBox(height: 20),
-            TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Họ và tên *', border: OutlineInputBorder())),
-            const SizedBox(height: 15),
-            TextField(controller: messageController, maxLines: 5, decoration: const InputDecoration(labelText: 'Nội dung góp ý *', border: OutlineInputBorder())),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1976D2)),
-                onPressed: _submitFeedback,
-                child: const Text('Gửi góp ý', style: TextStyle(color: Colors.white)),
-              ),
-            ),
+            const SizedBox(height: 30),
+            const Text("Hotline hỗ trợ: 1900 xxxx", style: TextStyle(color: Colors.grey)),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _contactRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.blue),
-          const SizedBox(width: 10),
-          Text('$label: $value'),
-        ],
       ),
     );
   }
