@@ -47,9 +47,11 @@ Cập nhật code mới nhất từ nhóm
 link firebase: https://console.firebase.google.com/u/0/project/quanlytroapp/authentication/users
 
 chạy lệnh sử dụng firebase:
-node -v
+```
+node -v   
 npm install -g firebase-tools
 flutter pub global activate flutterfire_cli
 flutter pub add firebase_core firebase_auth cloud_firestore
+```
 
 
