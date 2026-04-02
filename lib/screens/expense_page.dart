@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../widgets/expense_card.dart';
-import '../widgets/common_widgets.dart';
+import 'package:qlphongtro/widgets/expense_card.dart';
 import 'expense/expense_model.dart';
 import 'expense/expense_utils.dart';
 import 'expense/expense_dialogs.dart';
@@ -46,7 +45,6 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
               houseList = snapshot.docs.map((doc) {
                 String name = doc['name']?.toString() ?? "Không tên";
                 String address = doc['address']?.toString() ?? "";
-                // Kết hợp Tên và Địa chỉ để hiển thị
                 return address.isNotEmpty ? "$name - $address" : name;
               }).toList();
 
@@ -201,10 +199,12 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 10),
           const Text(
             "Danh sách đã chi (Từ Firebase)",
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
           ),
+          const SizedBox(height: 10),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
@@ -213,7 +213,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                   .orderBy('createdAt', descending: true)
                   .snapshots(),
               builder: (context, snapshot) {
-                if (snapshot.hasError)
+                if (snapshot.hasError) {
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
@@ -223,12 +223,16 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                       ),
                     ),
                   );
-                if (!snapshot.hasData)
+                }
+                
+                if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
+                }
 
                 var docs = snapshot.data!.docs;
-                if (docs.isEmpty)
+                if (docs.isEmpty) {
                   return const Center(child: Text("Chưa có dữ liệu chi phí"));
+                }
 
                 return ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 15),

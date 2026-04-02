@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'create_invoice_page.dart';
 
 class FeeEntryScreen extends StatefulWidget {
   const FeeEntryScreen({super.key});
@@ -147,15 +148,25 @@ class _FeeEntryScreenState extends State<FeeEntryScreen> {
       itemCount: rooms.length,
       itemBuilder: (context, index) {
         var data = rooms[index].data() as Map<String, dynamic>;
+        
         // Giả sử logic lọc: Chỉ hiện phòng "isRented == true" (đang thuê)
         if (data['isRented'] != true) return const SizedBox();
 
-        return _buildRoomCard(data['name'] ?? '?', "Khách thuê", "0987xxx", status);
+        double roomPrice = double.tryParse(data['price'].toString()) ?? 0;
+
+        return _buildRoomCard(
+          rooms[index].id,
+          roomPrice,
+          data['name'] ?? '?',
+          data['tenantName'] ?? "Khách thuê",
+          data['tenantPhone'] ?? "Chưa có SDT",
+          status
+        );
       },
     );
   }
 
-  Widget _buildRoomCard(String roomName, String tenant, String phone, String status) {
+  Widget _buildRoomCard(String roomId, double roomPrice, String roomName, String tenant, String phone, String status) {
     return Card(
       elevation: 2,
       margin: const EdgeInsets.only(bottom: 15),
@@ -184,7 +195,20 @@ class _FeeEntryScreenState extends State<FeeEntryScreen> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFAB47BC), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Đang lập hóa đơn cho phòng $roomName...")));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CreateInvoicePage(
+                            houseId: selectedHouseId!,
+                            roomId: roomId,
+                            roomName: roomName,
+                            tenantName: tenant,
+                            roomPrice: roomPrice,
+                            electricPrice: 3500,
+                            waterPrice: 20000,
+                          ),
+                        ),
+                      );
                     },
                     child: Text("Báo phí tháng ${selectedDate.month} cho khách", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ),

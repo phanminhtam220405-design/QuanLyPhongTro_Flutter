@@ -57,10 +57,11 @@ class QuanLyTroApp extends StatelessWidget {
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
+          }
           if (snapshot.hasData) {
             // Gọi một Widget trung gian để kiểm tra Role
             return const RoleWrapper();
