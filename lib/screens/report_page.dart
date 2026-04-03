@@ -64,11 +64,11 @@ class _ReportScreenState extends State<ReportScreen> {
             amount = double.tryParse(data['paidAmount'].toString()) ?? 0;
           }
 
-          if (data['createdAt'] != null && data['createdAt'] is Timestamp) {
-            DateTime date = (data['createdAt'] as Timestamp).toDate();
-            if (date.year == currentYear) {
-              mIncome[date.month - 1] += amount;
-            }
+          int bMonth = int.tryParse(data['month'].toString()) ?? 1;
+          int bYear = int.tryParse(data['year'].toString()) ?? currentYear;
+
+          if (bYear == currentYear && bMonth >= 1 && bMonth <= 12) {
+            mIncome[bMonth - 1] += amount;
           }
         }
       }
@@ -92,10 +92,15 @@ class _ReportScreenState extends State<ReportScreen> {
         }
 
         double amount = double.tryParse(data['amount'].toString()) ?? 0;
-        if (data['createdAt'] != null && data['createdAt'] is Timestamp) {
-          DateTime date = (data['createdAt'] as Timestamp).toDate();
-          if (date.year == currentYear) {
-            mExpense[date.month - 1] += amount;
+        String dateStr = data['date']?.toString() ?? '';
+        List<String> parts = dateStr.split('/');
+        
+        if (parts.length == 3) {
+          int eMonth = int.tryParse(parts[1]) ?? 1;
+          int eYear = int.tryParse(parts[2]) ?? currentYear;
+          
+          if (eYear == currentYear && eMonth >= 1 && eMonth <= 12) {
+            mExpense[eMonth - 1] += amount;
           }
         }
       }
