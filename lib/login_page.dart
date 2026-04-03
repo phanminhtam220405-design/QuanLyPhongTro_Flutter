@@ -69,14 +69,22 @@ class LoginPage extends StatelessWidget {
 
                           // 2. Lấy UID và check role từ Firestore
                           String uid = userCredential.user!.uid;
+                          
+                          // CODE FIX MỚI: Thêm timeout để không bao giờ bị treo app ở dòng này
                           DocumentSnapshot userDoc = await FirebaseFirestore
                               .instance
                               .collection('users')
                               .doc(uid)
-                              .get();
+                              .get()
+                              .timeout(
+                                const Duration(seconds: 10),
+                                onTimeout: () => throw "Máy chủ phản hồi quá lâu, vui lòng thử lại!",
+                              );
 
                           if (userDoc.exists && context.mounted) {
-                            String role = userDoc.get('role');
+                            // CODE FIX MỚI: Lấy dữ liệu an toàn, chống crash nếu field 'role' bị thiếu
+                            Map<String, dynamic>? data = userDoc.data() as Map<String, dynamic>?;
+                            String role = (data != null && data.containsKey('role')) ? data['role'] : 'user';
 
                             // 3. Điều hướng dựa trên Role
                             if (role == 'admin') {
@@ -96,9 +104,12 @@ class LoginPage extends StatelessWidget {
                             throw "Không tìm thấy dữ liệu người dùng!";
                           }
                         } catch (e) {
-                          ScaffoldMessenger.of(
-                            context,
-                          ).showSnackBar(SnackBar(content: Text("Lỗi: $e")));
+                          // CODE FIX MỚI: Đảm bảo widget còn tồn tại mới hiển thị lỗi
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text("Lỗi: $e")));
+                          }
                         }
                       },
                       child: const Text("ĐĂNG NHẬP"),

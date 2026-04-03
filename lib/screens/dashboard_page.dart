@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-// Import tất cả các màn hình của bạn
 import 'house_list_page.dart';
 import 'expense_page.dart';
 import 'report_page.dart';
 import 'fee_entry_page.dart';
-import 'incident_page.dart'; // Đảm bảo bạn đã có file này
+import 'incident_page.dart'; 
 import 'backup_restore_page.dart';
 import 'contact_page.dart';
 
@@ -52,7 +51,7 @@ class MainDashboard extends StatelessWidget {
               ),
               onTap: () async {
                 await FirebaseAuth.instance.signOut();
-                if (context.mounted) Navigator.pop(context); // Đóng menu
+                if (context.mounted) Navigator.pop(context); 
               },
             ),
             const SizedBox(height: 10),
@@ -67,7 +66,7 @@ class MainDashboard extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2), // Nền xám nhạt sang trọng
+      backgroundColor: const Color(0xFFF2F2F2), 
       appBar: AppBar(
         backgroundColor: const Color(0xFF1976D2),
         elevation: 0,
@@ -231,7 +230,6 @@ class MainDashboard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Icon nằm trong vòng tròn màu mờ
             CircleAvatar(
               radius: 25,
               backgroundColor: color.withOpacity(0.1),
