@@ -56,10 +56,8 @@ class LoginPage extends StatelessWidget {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      // Thay thế đoạn onPressed của nút ĐĂNG NHẬP
                       onPressed: () async {
                         try {
-                          // 1. Đăng nhập Auth
                           UserCredential userCredential = await FirebaseAuth
                               .instance
                               .signInWithEmailAndPassword(
@@ -67,7 +65,6 @@ class LoginPage extends StatelessWidget {
                                 password: passwordController.text.trim(),
                               );
 
-                          // 2. Lấy UID và check role từ Firestore
                           String uid = userCredential.user!.uid;
                           DocumentSnapshot userDoc = await FirebaseFirestore
                               .instance
@@ -78,15 +75,12 @@ class LoginPage extends StatelessWidget {
                           if (userDoc.exists && context.mounted) {
                             String role = userDoc.get('role');
 
-                            // 3. Điều hướng dựa trên Role
                             if (role == 'admin') {
-                              // Nếu là admin, vào trang Dashboard chủ trọ
                               Navigator.pushReplacementNamed(
                                 context,
                                 '/dashboard',
                               );
                             } else {
-                              // Nếu là user, vào trang dành cho người thuê
                               Navigator.pushReplacementNamed(
                                 context,
                                 '/user_home',
@@ -104,12 +98,11 @@ class LoginPage extends StatelessWidget {
                       child: const Text("ĐĂNG NHẬP"),
                     ),
                   ),
-                  // --- NÚT ĐĂNG KÝ MỚI THÊM ---
                   TextButton(
                     onPressed: () => Navigator.pushNamed(context, '/register'),
                     child: const Text("Chưa có tài khoản? Đăng ký ngay"),
                   ),
-                ],
+                ]
               ),
             ),
           ),

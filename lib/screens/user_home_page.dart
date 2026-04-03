@@ -29,7 +29,6 @@ class UserHomePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. Chào mừng & Thông tin phòng
             FutureBuilder<DocumentSnapshot>(
               future: FirebaseFirestore.instance.collection('users').doc(user?.uid).get(),
               builder: (context, snapshot) {
@@ -63,7 +62,6 @@ class UserHomePage extends StatelessWidget {
             const Text("Tiện ích nhanh", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
 
-            // 3. Các nút chức năng
             GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),

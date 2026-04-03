@@ -81,7 +81,6 @@ class HouseListScreen extends StatelessWidget {
     return Padding(padding: const EdgeInsets.symmetric(vertical: 2), child: Row(children: [Expanded(child: Text(l)), Expanded(child: Text(u, textAlign: TextAlign.center)), Expanded(child: Text(p, textAlign: TextAlign.right, style: const TextStyle(fontWeight: FontWeight.bold)))]));
   }
 
-  // HÀM DÙNG CHUNG CHO CẢ THÊM VÀ SỬA NHÀ
   void _showHouseForm(BuildContext context, {String? uid, DocumentSnapshot? doc}) {
     Map<String, dynamic>? data = doc?.data() as Map<String, dynamic>?;
     final n = TextEditingController(text: data?['name']), 

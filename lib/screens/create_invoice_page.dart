@@ -66,7 +66,7 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
       
       if(mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("✅ Lập hóa đơn thành công!")));
-        Navigator.pop(context); // Trở về trang trước
+        Navigator.pop(context);
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Lỗi: $e")));

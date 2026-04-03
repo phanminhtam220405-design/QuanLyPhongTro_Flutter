@@ -47,7 +47,6 @@ class RegisterPage extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                // Thay thế đoạn onPressed của nút ĐĂNG KÝ NGAY
                 onPressed: () async {
                   try {
                     // 1. Tạo tài khoản trên Firebase Auth
@@ -57,12 +56,10 @@ class RegisterPage extends StatelessWidget {
                           password: passwordController.text.trim(),
                         );
 
-                    // 2. Cập nhật DisplayName
                     await userCredential.user?.updateDisplayName(
                       nameController.text.trim(),
                     );
 
-                    // 3. TẠO DOCUMENT BÊN FIRESTORE (QUAN TRỌNG)
                     await FirebaseFirestore.instance
                         .collection('users')
                         .doc(userCredential.user!.uid)
@@ -70,8 +67,8 @@ class RegisterPage extends StatelessWidget {
                           'uid': userCredential.user!.uid,
                           'name': nameController.text.trim(),
                           'email': emailController.text.trim(),
-                          'role': 'user', // Mặc định là người thuê trọ
-                          'house_id': '', // Admin sẽ gán sau
+                          'role': 'user',
+                          'house_id': '',
                           'createdAt': DateTime.now(),
                         });
 

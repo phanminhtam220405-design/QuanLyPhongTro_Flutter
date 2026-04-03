@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// Widget ô nhập liệu trắng bo góc dùng chung
 Widget whiteInput(String label, String hint, TextEditingController? controller, {bool isNumber = false}) {
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -22,7 +21,6 @@ Widget whiteInput(String label, String hint, TextEditingController? controller, 
   );
 }
 
-// Widget chọn nhanh (Dropdown giả)
 Widget whiteDropdown(String label, String value, VoidCallback onTap) {
   return GestureDetector(
     onTap: onTap,

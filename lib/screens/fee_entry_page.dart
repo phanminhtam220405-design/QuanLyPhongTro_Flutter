@@ -29,12 +29,10 @@ class _FeeEntryScreenState extends State<FeeEntryScreen> {
         ),
         body: Column(
           children: [
-            // KHU VỰC CHỌN NHÀ VÀ THÁNG
             Padding(
               padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
-                  // Chọn căn nhà (Lấy từ Firebase)
                   Expanded(
                     flex: 2,
                     child: StreamBuilder<QuerySnapshot>(
@@ -44,7 +42,6 @@ class _FeeEntryScreenState extends State<FeeEntryScreen> {
                         var docs = snapshot.data!.docs;
                         if (docs.isEmpty) return const Text("Chưa có nhà");
                         
-                        // Tự động chọn nhà đầu tiên nếu chưa chọn
                         if (selectedHouseId == null) {
                           selectedHouseId = docs.first.id;
                           selectedHouseAddr = docs.first['address'];
@@ -114,7 +111,6 @@ class _FeeEntryScreenState extends State<FeeEntryScreen> {
               ),
             ),
 
-            // NỘI DUNG DANH SÁCH PHÒNG
             Expanded(
               child: selectedHouseId == null 
                 ? const Center(child: Text("Vui lòng chọn căn nhà"))
@@ -216,7 +212,6 @@ class _FeeEntryScreenState extends State<FeeEntryScreen> {
               ],
             ),
           ),
-          // DẢI RUY BĂNG (RIBBON) - HIỆN KHI CHƯA BÁO PHÍ
           if (status == "Chưa báo")
             Positioned(
               top: 15,

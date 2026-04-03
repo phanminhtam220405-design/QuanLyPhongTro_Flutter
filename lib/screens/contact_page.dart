@@ -10,14 +10,13 @@ class ContactScreen extends StatefulWidget {
 }
 
 class _ContactScreenState extends State<ContactScreen> {
-  // 2. Đưa Controllers ra ngoài hàm build để không bị reset khi render lại UI
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController messageController = TextEditingController();
 
   String selectedType = 'Góp ý';
-  bool isSending = false; // Thêm biến để hiện loading nếu muốn
+  bool isSending = false;
 
   // Hàm xử lý gửi góp ý
   void _submitFeedback() async {
@@ -28,7 +27,6 @@ class _ContactScreenState extends State<ContactScreen> {
     }
 
     try {
-      // 3. Lưu vào Firebase (Dùng đúng các Controller đã khai báo)
       await FirebaseFirestore.instance.collection('feedback').add({
         'name': nameController.text.trim(),
         'email': emailController.text.trim(),
@@ -113,12 +111,10 @@ class _ContactScreenState extends State<ContactScreen> {
             ),
             const SizedBox(height: 25),
 
-            // Card Thông tin liên hệ
             _buildContactInfoCard(),
 
             const SizedBox(height: 25),
 
-            // Form Nhập liệu
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(

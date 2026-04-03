@@ -56,7 +56,6 @@ class RoomListScreen extends StatelessWidget {
             backgroundColor: isRented ? Colors.green : Colors.red,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
-          // NẾU ĐÃ THUÊ THÌ XEM, CHƯA THÌ TẠO
           onPressed: () => isRented ? _showViewContract(context, doc) : _showCreateContract(context, doc),
           child: Text(isRented ? "Xem HĐ" : "Tạo HĐ", style: const TextStyle(color: Colors.white, fontSize: 12)),
         ),
@@ -64,7 +63,6 @@ class RoomListScreen extends StatelessWidget {
     );
   }
 
-  // --- HÀM TẠO HỢP ĐỒNG ---
   void _showCreateContract(BuildContext context, DocumentSnapshot doc) {
     final tName = TextEditingController();
     final tPhone = TextEditingController();
@@ -124,7 +122,6 @@ class RoomListScreen extends StatelessWidget {
     );
   }
 
-  // --- HÀM XEM HỢP ĐỒNG (GIAO DIỆN CHỈ ĐỌC) ---
   void _showViewContract(BuildContext context, DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     showModalBottomSheet(
@@ -181,7 +178,6 @@ class RoomListScreen extends StatelessWidget {
     );
   }
 
-  // --- HÀM THÊM/SỬA PHÒNG ---
   void _showRoomForm(BuildContext context, {DocumentSnapshot? doc}) {
     Map<String, dynamic>? data = doc?.data() as Map<String, dynamic>?;
     final n = TextEditingController(text: data?['name']), p = TextEditingController(text: data?['price']);
@@ -204,7 +200,6 @@ class RoomListScreen extends StatelessWidget {
     ));
   }
 
-  // --- WIDGET GIAO DIỆN ---
   Widget _whiteInput(String l, String h, TextEditingController? c, {bool enabled = true}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),

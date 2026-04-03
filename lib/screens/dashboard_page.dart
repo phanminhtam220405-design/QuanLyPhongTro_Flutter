@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-// Import tất cả các màn hình của bạn
 import 'house_list_page.dart';
 import 'expense_page.dart';
 import 'report_page.dart';
 import 'fee_entry_page.dart';
-import 'incident_page.dart'; // Đảm bảo bạn đã có file này
+import 'incident_page.dart';
 import 'backup_restore_page.dart';
 import 'contact_page.dart';
 
 class MainDashboard extends StatelessWidget {
   const MainDashboard({super.key});
 
-  // HÀM HIỂN THỊ MENU TÀI KHOẢN KHI BẤM VÀO CHÀO CHỦ NHÀ
   void _showUserMenu(BuildContext context, User? user) {
     showModalBottomSheet(
       context: context,
@@ -80,7 +78,6 @@ class MainDashboard extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // HEADER TƯƠNG TÁC: CHÀO CHỦ NHÀ + ĐĂNG XUẤT
           InkWell(
             onTap: () => _showUserMenu(context, user),
             child: Container(
@@ -125,7 +122,6 @@ class MainDashboard extends StatelessWidget {
             ),
           ),
 
-          // GRID MENU 7 NÚT (SẮP XẾP 3 CỘT)
           Expanded(
             child: GridView.count(
               padding: const EdgeInsets.all(20),
@@ -186,7 +182,6 @@ class MainDashboard extends StatelessWidget {
             ),
           ),
 
-          // PHẦN FOOTER CHỐNG TRÔI
           const Padding(
             padding: EdgeInsets.only(bottom: 20),
             child: Text(
@@ -203,7 +198,6 @@ class MainDashboard extends StatelessWidget {
     );
   }
 
-  // WIDGET TẠO THẺ MENU PRO
   Widget _buildMenuCard(
     BuildContext context,
     String title,

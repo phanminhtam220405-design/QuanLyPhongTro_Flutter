@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../widgets/common_widgets.dart'; // Sử dụng whiteInput từ đây
+import '../widgets/common_widgets.dart';
 
 class IncidentScreen extends StatefulWidget {
   const IncidentScreen({super.key});
@@ -12,7 +12,6 @@ class IncidentScreen extends StatefulWidget {
 class _IncidentScreenState extends State<IncidentScreen> {
   final uid = FirebaseAuth.instance.currentUser!.uid;
 
-  // Lấy màu sắc theo trạng thái
   Color _getStatusColor(String status) {
     if (status == 'Mới tiếp nhận') return Colors.blue;
     if (status == 'Đang xử lý') return Colors.orange;
@@ -54,7 +53,6 @@ class _IncidentScreenState extends State<IncidentScreen> {
     );
   }
 
-  // --- THẺ SỰ CỐ GIAO DIỆN MỚI ---
   Widget _buildIncidentCard(BuildContext context, DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     String status = data['status'] ?? 'Mới tiếp nhận';
@@ -68,7 +66,6 @@ class _IncidentScreenState extends State<IncidentScreen> {
       ),
       child: Column(
         children: [
-          // Thanh tiêu đề của thẻ
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             decoration: BoxDecoration(
@@ -90,7 +87,6 @@ class _IncidentScreenState extends State<IncidentScreen> {
               children: [
                 Text(data['title'] ?? 'Sự cố', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
-                // Nhãn trạng thái (Pill)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(color: _getStatusColor(status), borderRadius: BorderRadius.circular(20)),
@@ -99,7 +95,6 @@ class _IncidentScreenState extends State<IncidentScreen> {
                 const Divider(height: 30),
                 Row(
                   children: [
-                    // NÚT XEM
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: () => _showDetailDialog(context, data),
@@ -109,7 +104,6 @@ class _IncidentScreenState extends State<IncidentScreen> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    // NÚT XỬ LÝ (CHỈ HIỆN KHI CHƯA XONG)
                     if (status != 'Đã hoàn thành')
                       Expanded(
                         child: ElevatedButton.icon(
@@ -129,7 +123,6 @@ class _IncidentScreenState extends State<IncidentScreen> {
     );
   }
 
-  // --- FORM THÊM SỰ CỐ MỚI (STYLE TRẮNG BO GÓC) ---
   void _showAddIncidentForm(BuildContext context) {
     final t = TextEditingController(), d = TextEditingController(), h = TextEditingController();
     showModalBottomSheet(
@@ -170,7 +163,6 @@ class _IncidentScreenState extends State<IncidentScreen> {
     );
   }
 
-  // --- HÀM XỬ LÝ & HOÀN THÀNH (CÓ NHẬP CHI PHÍ) ---
   void _updateStatusDialog(BuildContext context, DocumentSnapshot doc) {
     final cost = TextEditingController();
     showDialog(
@@ -189,9 +181,7 @@ class _IncidentScreenState extends State<IncidentScreen> {
           TextButton(onPressed: () => Navigator.pop(context), child: const Text("Hủy")),
           ElevatedButton(
             onPressed: () async {
-              // 1. Cập nhật trạng thái
               await doc.reference.update({'status': 'Đã hoàn thành'});
-              // 2. Tự động đẩy sang mục Chi phí
               await FirebaseFirestore.instance.collection('expenses').add({
                 'userId': uid,
                 'reason': "Sửa chữa: ${doc['title']}",

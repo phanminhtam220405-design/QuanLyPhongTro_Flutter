@@ -52,8 +52,6 @@ class QuanLyTroApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Quản Lý Trọ Riêng Tư',
       theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
-      // Kiểm tra xem đã đăng nhập chưa
-      // Thay thế đoạn StreamBuilder trong home bằng logic này:
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
@@ -63,14 +61,12 @@ class QuanLyTroApp extends StatelessWidget {
             );
           }
           if (snapshot.hasData) {
-            // Gọi một Widget trung gian để kiểm tra Role
             return const RoleWrapper();
           }
           return LoginPage();
         },
       ),
 
-      // Thêm các Route mới vào routes:
       routes: {
         '/login': (context) => LoginPage(),
         '/register': (context) => RegisterPage(),
