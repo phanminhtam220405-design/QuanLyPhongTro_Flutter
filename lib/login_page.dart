@@ -102,7 +102,7 @@ class LoginPage extends StatelessWidget {
                     onPressed: () => Navigator.pushNamed(context, '/register'),
                     child: const Text("Chưa có tài khoản? Đăng ký ngay"),
                   ),
-                ]
+                ],
               ),
             ),
           ),
