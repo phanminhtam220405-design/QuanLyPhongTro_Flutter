@@ -106,8 +106,8 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(15),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black12, blurRadius: 10),
+                boxShadow: [
+                  BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
                 ],
               ),
               child: Column(
@@ -127,10 +127,25 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                   Row(
                     children: [
                       Expanded(
-                        child: _buildInputLabel(
-                          "Ngày chi",
-                          dateController.text,
-                          Icons.calendar_today,
+                        child: InkWell(
+                          onTap: () async {
+                            DateTime? picked = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime(2100),
+                            );
+                            if (picked != null) {
+                              setState(() {
+                                dateController.text = "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
+                              });
+                            }
+                          },
+                          child: _buildInputLabel(
+                            "Ngày chi",
+                            dateController.text,
+                            Icons.calendar_today,
+                          ),
                         ),
                       ),
                       const VerticalDivider(width: 20),
@@ -201,7 +216,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
           ),
           const SizedBox(height: 10),
           const Text(
-            "Danh sách đã chi (Từ Firebase)",
+            "Danh sách đã chi",
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
           ),
           const SizedBox(height: 10),
