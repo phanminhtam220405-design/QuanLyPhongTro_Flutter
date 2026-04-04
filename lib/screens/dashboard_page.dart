@@ -8,6 +8,7 @@ import 'fee_entry_page.dart';
 import 'incident_page.dart'; 
 import 'backup_restore_page.dart';
 import 'contact_page.dart';
+import 'notifications/admin_send_notification.dart';
 
 class MainDashboard extends StatelessWidget {
   const MainDashboard({super.key});
@@ -76,6 +77,21 @@ class MainDashboard extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),
         ),
         centerTitle: true,
+        actions: [
+          // Nút gửi thông báo
+          IconButton(
+            icon: const Icon(Icons.notifications_active),
+            tooltip: 'Gửi thông báo',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AdminSendNotificationPage(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -124,11 +140,11 @@ class MainDashboard extends StatelessWidget {
             ),
           ),
 
-          // GRID MENU 7 NÚT (SẮP XẾP 3 CỘT)
+          // GRID MENU 8 NÚT (SẮP XẾP 3 CỘT)
           Expanded(
             child: GridView.count(
               padding: const EdgeInsets.all(20),
-              crossAxisCount: 3, // 3 cột cực đẹp
+              crossAxisCount: 3, 
               crossAxisSpacing: 12,
               mainAxisSpacing: 15,
               children: [
@@ -159,6 +175,13 @@ class MainDashboard extends StatelessWidget {
                   Icons.build_circle_outlined,
                   Colors.deepOrange,
                   const IncidentScreen(),
+                ),
+                _buildMenuCard(
+                  context,
+                  "Thông báo",
+                  Icons.notifications_active,
+                  Colors.amber,
+                  const AdminSendNotificationPage(),
                 ),
                 _buildMenuCard(
                   context,

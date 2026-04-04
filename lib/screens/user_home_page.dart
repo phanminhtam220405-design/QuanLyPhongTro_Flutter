@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'notifications/notification_page.dart';
 
 class UserHomePage extends StatelessWidget {
   const UserHomePage({super.key});
@@ -15,6 +16,61 @@ class UserHomePage extends StatelessWidget {
         backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
         actions: [
+          // Nút thông báo
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const NotificationPage(),
+                    ),
+                  );
+                },
+              ),
+              // Badge hiển thị số lượng thông báo chưa đọc
+              Positioned(
+                right: 8,
+                top: 8,
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('notifications')
+                      .where('user_id', isEqualTo: user?.uid)
+                      .where('is_read', isEqualTo: false)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    int unreadCount = snapshot.data!.docs.length;
+                    return Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        unreadCount > 9 ? '9+' : '$unreadCount',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+          // Nút đăng xuất
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
