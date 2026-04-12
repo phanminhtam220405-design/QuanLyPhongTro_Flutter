@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-// 1. Chuyển từ StatelessWidget sang StatefulWidget để dùng được setState và Controllers
 class ContactScreen extends StatefulWidget {
   const ContactScreen({super.key});
 
@@ -18,7 +17,6 @@ class _ContactScreenState extends State<ContactScreen> {
   String selectedType = 'Góp ý';
   bool isSending = false;
 
-  // Hàm xử lý gửi góp ý
   void _submitFeedback() async {
     if (nameController.text.trim().isEmpty ||
         messageController.text.trim().isEmpty) {
@@ -184,7 +182,6 @@ class _ContactScreenState extends State<ContactScreen> {
     );
   }
 
-  // Widget con để code gọn hơn
   Widget _buildTextField(
     TextEditingController controller,
     String label,

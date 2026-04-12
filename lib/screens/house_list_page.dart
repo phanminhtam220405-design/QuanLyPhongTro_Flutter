@@ -56,7 +56,6 @@ class HouseListScreen extends StatelessWidget {
                 _feeRow("Nước", "phòng", "${data['waterPrice'] ?? 0} đ"),
                 const SizedBox(height: 15),
                 Row(children: [
-                  // NÚT SỬA NHÀ ĐÃ CÓ LOGIC
                   Expanded(child: ElevatedButton.icon(
                     onPressed: () => _showHouseForm(context, doc: doc), 
                     icon: const Icon(Icons.edit), label: const Text("Sửa nhà"), 

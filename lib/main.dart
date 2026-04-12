@@ -37,7 +37,7 @@ class RoleWrapper extends StatelessWidget {
           if (role == 'admin') return const MainDashboard();
           return const UserHomePage();
         }
-        return LoginPage(); // Dự phòng nếu không tìm thấy dữ liệu user
+        return LoginPage();
       },
     );
   }
@@ -71,7 +71,7 @@ class QuanLyTroApp extends StatelessWidget {
         '/login': (context) => LoginPage(),
         '/register': (context) => RegisterPage(),
         '/dashboard': (context) => const MainDashboard(),
-        '/user_home': (context) => const UserHomePage(), // Thêm dòng này
+        '/user_home': (context) => const UserHomePage(),
       },
     );
   }

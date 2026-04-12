@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// Model dữ liệu cho một khoản chi tiêu
 class ExpenseCategory {
   final IconData icon;
   final String name;
@@ -12,11 +11,7 @@ class ExpenseCategory {
     required this.color,
   });
 
-  Map<String, dynamic> toMap() => {
-    'icon': icon,
-    'name': name,
-    'color': color,
-  };
+  Map<String, dynamic> toMap() => {'icon': icon, 'name': name, 'color': color};
 }
 
 class ExpenseData {
@@ -53,7 +48,9 @@ class ExpenseCategories {
     {'icon': Icons.more_horiz, 'name': 'Khác', 'color': Colors.teal},
   ];
 
-  static List<Map<String, dynamic>> getSampleExpenses(List<Map<String, dynamic>> categories) => [
+  static List<Map<String, dynamic>> getSampleExpenses(
+    List<Map<String, dynamic>> categories,
+  ) => [
     {
       'house': '123 Nguyễn Đình Chiểu, P5, Q3',
       'date': '01/03/2026',

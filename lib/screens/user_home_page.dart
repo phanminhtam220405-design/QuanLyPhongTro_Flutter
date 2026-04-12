@@ -47,7 +47,6 @@ class UserHomePage extends StatelessWidget {
             const SizedBox(height: 20),
             const Text("Hóa đơn tháng này", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             
-            // 2. Widget hiển thị hóa đơn (Giả định lấy từ collection bills)
             Card(
               elevation: 4,
               child: ListTile(
@@ -70,10 +69,8 @@ class UserHomePage extends StatelessWidget {
               crossAxisSpacing: 10,
               children: [
                 _buildMenuButton(context, "Báo hỏng hóc", Icons.report_problem, Colors.orange, () {
-                  // Điều hướng tới trang gửi yêu cầu (incident_report_page)
                 }),
                 _buildMenuButton(context, "Lịch sử hóa đơn", Icons.history, Colors.blue, () {
-                  // Điều hướng tới trang lịch sử
                 }),
                 _buildMenuButton(context, "Nội quy trọ", Icons.gavel, Colors.teal, () {}),
                 _buildMenuButton(context, "Liên hệ chủ nhà", Icons.contact_phone, Colors.purple, () {}),

@@ -67,7 +67,6 @@ class LoginPage extends StatelessWidget {
 
                           String uid = userCredential.user!.uid;
 
-                          // CODE FIX MỚI: Thêm timeout để không bao giờ bị treo app ở dòng này
                           DocumentSnapshot userDoc = await FirebaseFirestore
                               .instance
                               .collection('users')
@@ -80,7 +79,6 @@ class LoginPage extends StatelessWidget {
                               );
 
                           if (userDoc.exists && context.mounted) {
-                            // CODE FIX MỚI: Lấy dữ liệu an toàn, chống crash nếu field 'role' bị thiếu
                             Map<String, dynamic>? data =
                                 userDoc.data() as Map<String, dynamic>?;
                             String role =
@@ -103,7 +101,6 @@ class LoginPage extends StatelessWidget {
                             throw "Không tìm thấy dữ liệu người dùng!";
                           }
                         } catch (e) {
-                          // CODE FIX MỚI: Đảm bảo widget còn tồn tại mới hiển thị lỗi
                           if (context.mounted) {
                             ScaffoldMessenger.of(
                               context,

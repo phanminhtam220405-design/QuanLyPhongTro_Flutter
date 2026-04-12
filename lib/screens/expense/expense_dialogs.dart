@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class ExpenseDialogs {
-  // Dialog chọn danh mục
   static void showCategorySelector(
     BuildContext context,
     List<Map<String, dynamic>> categories,
@@ -90,7 +89,6 @@ class ExpenseDialogs {
     );
   }
 
-  // Dialog chọn nhà (Đã sửa để nhận houseList từ Firebase)
   static void showHouseSelector(
     BuildContext context,
     String selectedHouse,
@@ -99,16 +97,14 @@ class ExpenseDialogs {
   ) {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // Cho phép vuốt nếu danh sách dài
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => Container(
         padding: const EdgeInsets.all(20),
         constraints: BoxConstraints(
-          maxHeight:
-              MediaQuery.of(context).size.height *
-              0.6, // Giới hạn chiều cao 60% màn hình
+          maxHeight: MediaQuery.of(context).size.height * 0.6,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -176,6 +172,4 @@ class ExpenseDialogs {
       ),
     );
   }
-
-  // Bạn có thể giữ lại các hàm showDeleteConfirmation... bên dưới nếu cần
 }

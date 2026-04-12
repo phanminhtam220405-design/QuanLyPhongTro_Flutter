@@ -49,7 +49,6 @@ class RegisterPage extends StatelessWidget {
                 ),
                 onPressed: () async {
                   try {
-                    // 1. Tạo tài khoản trên Firebase Auth
                     UserCredential userCredential = await FirebaseAuth.instance
                         .createUserWithEmailAndPassword(
                           email: emailController.text.trim(),

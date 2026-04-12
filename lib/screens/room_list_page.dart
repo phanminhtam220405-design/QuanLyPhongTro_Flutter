@@ -149,7 +149,6 @@ class RoomListScreen extends StatelessWidget {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                       onPressed: () {
-                        // THANH LÝ HỢP ĐỒNG -> Đưa phòng về trống
                         doc.reference.update({
                           'isRented': false,
                           'tenantName': FieldValue.delete(),
