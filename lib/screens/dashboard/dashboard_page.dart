@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'house_list_page.dart';
-import 'expense_page.dart';
-import 'report_page.dart';
-import 'fee_entry_page.dart';
-import 'incident_page.dart';
-import 'backup_restore_page.dart';
-import 'contact_page.dart';
-import 'notifications/admin_send_notification.dart';
+import '../house_list_page.dart';
+import '../expense/expense_page.dart';
+import '../report_page.dart';
+import '../fee_entry_page.dart';
+import '../incident_page.dart';
+import '../backup_restore_page.dart';
+import '../contact_page.dart';
+import '../notifications/admin_send_notification.dart';
 
 class MainDashboard extends StatelessWidget {
   const MainDashboard({super.key});

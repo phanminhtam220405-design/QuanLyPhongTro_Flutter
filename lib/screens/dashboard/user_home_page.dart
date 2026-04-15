@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'notifications/notification_page.dart';
+import '../notifications/notification_page.dart';
 
 class UserHomePage extends StatelessWidget {
   const UserHomePage({super.key});

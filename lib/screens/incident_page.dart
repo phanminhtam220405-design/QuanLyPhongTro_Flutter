@@ -26,7 +26,10 @@ class _IncidentScreenState extends State<IncidentScreen> {
         backgroundColor: const Color(0xFF1976D2),
         foregroundColor: Colors.white,
         elevation: 0,
-        title: const Text("Sự cố & Bảo trì", style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          "Sự cố & Bảo trì",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -34,14 +37,19 @@ class _IncidentScreenState extends State<IncidentScreen> {
             .where('userId', isEqualTo: uid)
             .snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          if (!snapshot.hasData)
+            return const Center(child: CircularProgressIndicator());
           var docs = snapshot.data!.docs;
-          if (docs.isEmpty) return const Center(child: Text("Chưa có sự cố nào được ghi nhận."));
+          if (docs.isEmpty)
+            return const Center(
+              child: Text("Chưa có sự cố nào được ghi nhận."),
+            );
 
           return ListView.builder(
             padding: const EdgeInsets.all(15),
             itemCount: docs.length,
-            itemBuilder: (context, index) => _buildIncidentCard(context, docs[index]),
+            itemBuilder: (context, index) =>
+                _buildIncidentCard(context, docs[index]),
           );
         },
       ),
@@ -62,7 +70,13 @@ class _IncidentScreenState extends State<IncidentScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 5))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -70,13 +84,25 @@ class _IncidentScreenState extends State<IncidentScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             decoration: BoxDecoration(
               color: _getStatusColor(status).withOpacity(0.1),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(15),
+              ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(data['house'] ?? 'Khu trọ', style: TextStyle(color: _getStatusColor(status), fontWeight: FontWeight.bold, fontSize: 12)),
-                Text(data['date'] ?? '', style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                Text(
+                  data['house'] ?? 'Khu trọ',
+                  style: TextStyle(
+                    color: _getStatusColor(status),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+                Text(
+                  data['date'] ?? '',
+                  style: const TextStyle(color: Colors.grey, fontSize: 11),
+                ),
               ],
             ),
           ),
@@ -85,57 +111,120 @@ class _IncidentScreenState extends State<IncidentScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(data['title'] ?? 'Sự cố', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  data['title'] ?? 'Sự cố',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 10),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(color: _getStatusColor(status), borderRadius: BorderRadius.circular(20)),
-                  child: Text(status, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _getStatusColor(status),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    status,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
                 const Divider(height: 30),
                 Row(
                   children: [
                     Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => _showDetailDialog(context, data),
-                        icon: const Icon(Icons.visibility_outlined, size: 18),
-                        label: const Text("XEM"),
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                      child: _buildActionButton(
+                        icon: Icons.visibility_outlined,
+                        label: "Xem",
+                        color: const Color(0xFF1976D2),
+                        onTap: () => _showDetailDialog(context, doc),
                       ),
                     ),
                     const SizedBox(width: 10),
                     if (status != 'Đã hoàn thành')
                       Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () => _updateStatusDialog(context, doc),
-                          icon: const Icon(Icons.build_outlined, size: 18),
-                          label: const Text("XỬ LÝ"),
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.orange, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                        child: _buildActionButton(
+                          icon: Icons.check_circle_outline,
+                          label: "Hoàn thành",
+                          color: Colors.green,
+                          onTap: () => _updateStatusDialog(context, doc),
                         ),
                       ),
                   ],
-                )
+                ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
   }
 
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return SizedBox(
+      height: 45,
+      child: ElevatedButton.icon(
+        onPressed: onTap,
+        icon: Icon(icon, size: 18),
+        label: Text(
+          label,
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
   void _showAddIncidentForm(BuildContext context) {
-    final t = TextEditingController(), d = TextEditingController(), h = TextEditingController();
+    final t = TextEditingController(),
+        d = TextEditingController(),
+        h = TextEditingController();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom, left: 20, right: 20, top: 20),
-        decoration: const BoxDecoration(color: Color(0xFFF5F5F5), borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          left: 20,
+          right: 20,
+          top: 20,
+        ),
+        decoration: const BoxDecoration(
+          color: Color(0xFFF5F5F5),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text("Báo sự cố mới", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue)),
+            const Text(
+              "Báo sự cố mới",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
+            ),
             const SizedBox(height: 20),
             whiteInput("Tên khu trọ/Phòng *", "Ví dụ: Nhà Quận 3 - P101", h),
             const SizedBox(height: 15),
@@ -144,21 +233,125 @@ class _IncidentScreenState extends State<IncidentScreen> {
             whiteInput("Mô tả chi tiết", "Ví dụ: Nước chảy yếu...", d),
             const SizedBox(height: 25),
             SizedBox(
-              width: double.infinity, height: 50,
+              width: double.infinity,
+              height: 50,
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1976D2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1976D2),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
                 onPressed: () {
                   FirebaseFirestore.instance.collection('incidents').add({
-                    'userId': uid, 'title': t.text, 'description': d.text, 'house': h.text, 'status': 'Mới tiếp nhận', 'date': DateTime.now().toString().split(' ')[0]
+                    'userId': uid,
+                    'title': t.text,
+                    'description': d.text,
+                    'house': h.text,
+                    'status': 'Mới tiếp nhận',
+                    'date': DateTime.now().toString().split(' ')[0],
                   });
                   Navigator.pop(context);
                 },
-                child: const Text("GỬI YÊU CẦU", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                child: const Text(
+                  "GỬI YÊU CẦU",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 20),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showEditIncidentForm(BuildContext context, DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+
+    final t = TextEditingController(text: data['title']);
+    final d = TextEditingController(text: data['description']);
+    final h = TextEditingController(text: data['house']);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          left: 20,
+          right: 20,
+          top: 20,
+        ),
+        decoration: const BoxDecoration(
+          color: Color(0xFFF5F5F5),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              "Chỉnh sửa sự cố",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+
+            whiteInput("Tên khu trọ", "", h),
+            const SizedBox(height: 15),
+            whiteInput("Vấn đề", "", t),
+            const SizedBox(height: 15),
+            whiteInput("Mô tả", "", d),
+
+            const SizedBox(height: 20),
+
+            ElevatedButton(
+              onPressed: () async {
+                await doc.reference.update({
+                  'title': t.text,
+                  'description': d.text,
+                  'house': h.text,
+                });
+                Navigator.pop(context);
+              },
+              child: const Text("CẬP NHẬT"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, DocumentSnapshot doc) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Xóa sự cố"),
+        content: const Text("Bạn có chắc muốn xóa không?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Hủy"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await doc.reference.delete();
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text("XÓA"),
+          ),
+        ],
       ),
     );
   }
@@ -172,13 +365,26 @@ class _IncidentScreenState extends State<IncidentScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text("Hãy nhập chi phí sửa chữa để hệ thống lưu vào mục Quản lý chi.", style: TextStyle(fontSize: 13, color: Colors.grey)),
+            const Text(
+              "Hãy nhập chi phí sửa chữa để hệ thống lưu vào mục Quản lý chi.",
+              style: TextStyle(fontSize: 13, color: Colors.grey),
+            ),
             const SizedBox(height: 15),
-            TextField(controller: cost, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: "Số tiền (đ)", border: OutlineInputBorder())),
+            TextField(
+              controller: cost,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: "Số tiền (đ)",
+                border: OutlineInputBorder(),
+              ),
+            ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Hủy")),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Hủy"),
+          ),
           ElevatedButton(
             onPressed: () async {
               await doc.reference.update({'status': 'Đã hoàn thành'});
@@ -192,30 +398,100 @@ class _IncidentScreenState extends State<IncidentScreen> {
               Navigator.pop(context);
             },
             child: const Text("XÁC NHẬN XONG"),
-          )
+          ),
         ],
       ),
     );
   }
 
-  void _showDetailDialog(BuildContext context, Map<String, dynamic> data) {
+  void _showDetailDialog(BuildContext context, DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (context) => Container(
         padding: const EdgeInsets.all(25),
-        decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Chi tiết sự cố", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const Text(
+              "Chi tiết sự cố",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+
             const Divider(),
+
             _infoRow("Vị trí:", data['house'] ?? ''),
             _infoRow("Vấn đề:", data['title'] ?? ''),
             _infoRow("Chi tiết:", data['description'] ?? 'Không có mô tả'),
-            const SizedBox(height: 20),
-            Center(child: ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text("ĐÓNG"))),
+
+            const SizedBox(height: 25),
+
+            // 🔘 BUTTON ROW
+            Row(
+              children: [
+                // ✏️ SỬA
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _showEditIncidentForm(context, doc);
+                    },
+                    icon: const Icon(Icons.edit),
+                    label: const Text("SỬA"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 10),
+
+                // 🗑️ XÓA
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _confirmDelete(context, doc);
+                    },
+                    icon: const Icon(Icons.delete),
+                    label: const Text("XÓA"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 15),
+
+            // 🔵 ĐÓNG
+            Center(
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("ĐÓNG"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -223,6 +499,14 @@ class _IncidentScreenState extends State<IncidentScreen> {
   }
 
   Widget _infoRow(String l, String v) {
-    return Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Row(children: [Text("$l ", style: const TextStyle(fontWeight: FontWeight.bold)), Text(v)]));
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Text("$l ", style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(v),
+        ],
+      ),
+    );
   }
 }

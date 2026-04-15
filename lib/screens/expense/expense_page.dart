@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:qlphongtro/widgets/expense_card.dart';
-import 'expense/expense_model.dart';
-import 'expense/expense_utils.dart';
-import 'expense/expense_dialogs.dart';
+import 'expense_model.dart';
+import 'expense_utils.dart';
+import 'expense_dialogs.dart';
 
 class ExpenseScreen extends StatefulWidget {
   const ExpenseScreen({super.key});
@@ -56,6 +56,119 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
         });
   }
 
+  void _showEditExpenseDialog(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+
+    final reason = TextEditingController(text: data['reason']);
+    final amount = TextEditingController(text: data['amount']);
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.white,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 🔵 TITLE
+              const Text(
+                "Sửa khoản chi",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1976D2),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // ✏️ LÝ DO
+              TextField(
+                controller: reason,
+                decoration: InputDecoration(
+                  labelText: "Lý do",
+                  prefixIcon: const Icon(Icons.edit_note),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 15),
+
+              // 💰 SỐ TIỀN
+              TextField(
+                controller: amount,
+                keyboardType: TextInputType.number,
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+                decoration: InputDecoration(
+                  labelText: "Số tiền",
+                  prefixIcon: const Icon(Icons.attach_money),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 25),
+
+              // 🔘 BUTTON
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text("HỦY"),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await doc.reference.update({
+                          'reason': reason.text,
+                          'amount': amount.text.replaceAll(
+                            RegExp(r'[^0-9]'),
+                            '',
+                          ),
+                        });
+                        Navigator.pop(context);
+                        _showMessage("Đã cập nhật!");
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1976D2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        "LƯU",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   void _saveToFirebase() async {
     if (selectedHouse == "Chọn căn nhà" ||
         selectedCategory == null ||
@@ -90,10 +203,13 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF2F2F2),
       appBar: AppBar(
-        title: const Text("Quản lý chi phí"),
+        title: const Text(
+          "Quản lý chi phí",
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: const Color(0xFF1976D2),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -107,7 +223,10 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(15),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                  ),
                 ],
               ),
               child: Column(
@@ -137,7 +256,8 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                             );
                             if (picked != null) {
                               setState(() {
-                                dateController.text = "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
+                                dateController.text =
+                                    "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
                               });
                             }
                           },
@@ -239,7 +359,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                     ),
                   );
                 }
-                
+
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
@@ -272,7 +392,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                     };
                     return ExpenseCard(
                       expense: formatted,
-                      onEdit: () {},
+                      onEdit: () => _showEditExpenseDialog(docs[index]),
                       onDelete: () => docs[index].reference.delete(),
                       formatCurrency: (v) => "${v}đ",
                     );
