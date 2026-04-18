@@ -55,7 +55,6 @@ class LoginPage extends StatelessWidget {
                       child: const Text("ĐĂNG NHẬP", style: TextStyle(color: Colors.white)),
                     ),
                   ),
-                  // --- TRẢ LẠI NÚT ĐĂNG KÝ CỦA BẠN Ở ĐÂY ---
                   TextButton(
                     onPressed: () => Navigator.pushNamed(context, '/register'),
                     child: const Text("Chưa có tài khoản? Đăng ký ngay"),

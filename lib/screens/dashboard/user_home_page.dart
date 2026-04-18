@@ -16,10 +16,12 @@ class UserHomePage extends StatelessWidget {
         backgroundColor: Colors.indigo, foregroundColor: Colors.white, centerTitle: true, elevation: 0,
         actions: [IconButton(icon: const Icon(Icons.logout), onPressed: () => FirebaseAuth.instance.signOut())],
       ),
+      // SỬ DỤNG STREAMBUILDER ĐỂ LẮNG NGHE THAY ĐỔI THỜI GIAN THỰC
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance.collection('users').doc(user?.uid).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          
           var userData = snapshot.data!;
           String roomName = userData['room_name'] ?? '';
 
@@ -45,12 +47,12 @@ class UserHomePage extends StatelessWidget {
                   const Text("Thông tin chỗ ở", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 10),
 
-                  // KIỂM TRA NẾU KHÔNG CÓ PHÒNG (SAU KHI THANH LÝ)
+                  // NẾU room_name LÀ RỖNG (ADMIN ĐÃ THANH LÝ) -> HIỆN THÔNG BÁO MẤT PHÒNG
                   if (roomName == '') 
                     Card(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(30),
+                      child: Container(
+                        width: double.infinity, padding: const EdgeInsets.all(30),
                         child: Column(children: [
                           const Icon(Icons.info_outline, color: Colors.orange, size: 50),
                           const SizedBox(height: 10),
@@ -71,19 +73,19 @@ class UserHomePage extends StatelessWidget {
                           child: Row(children: [
                             const Icon(Icons.key, color: Colors.white, size: 20),
                             const SizedBox(width: 10),
-                            Text("Phòng: $roomName", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                            Text("Phòng của bạn: $roomName", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                           ]),
                         ),
                         ListTile(
                           leading: const Icon(Icons.location_on, color: Colors.redAccent),
-                          title: Text(userData['house_name'] ?? 'Địa chỉ nhà', style: const TextStyle(fontSize: 14)),
-                          subtitle: const Text("Hợp đồng đang hiệu lực"),
+                          title: Text(userData['house_name'] ?? 'Địa chỉ nhà'),
+                          subtitle: const Text("Hợp đồng đang có hiệu lực"),
                         )
                       ]),
                     ),
 
                   const SizedBox(height: 25),
-                  const Text("Tiện ích", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const Text("Dịch vụ tiện ích", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(height: 10),
                   GridView.count(
                     shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
