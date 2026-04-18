@@ -29,6 +29,30 @@ class HouseListScreen extends StatelessWidget {
     );
   }
 
+  // Hàm hiển thị bảng báo lỗi cho Nhà
+  void _showErrorAlert(BuildContext context, String title, String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(children: [
+          const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+          const SizedBox(width: 10),
+          Text(title, style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
+        ]),
+        content: Text(message),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("ĐÃ HIỂU")),
+        ],
+      ),
+    );
+  }
+
+  Future<bool> _isAddressDuplicate(String address, String uid, String? currentDocId) async {
+    var result = await FirebaseFirestore.instance.collection('houses').where('userId', isEqualTo: uid).where('address', isEqualTo: address).get();
+    if (currentDocId == null) return result.docs.isNotEmpty;
+    return result.docs.any((doc) => doc.id != currentDocId);
+  }
+
   Widget _buildHouseCard(BuildContext context, DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return Card(
@@ -43,50 +67,29 @@ class HouseListScreen extends StatelessWidget {
               const Icon(Icons.home, color: Colors.white, size: 20),
               const SizedBox(width: 10),
               Expanded(child: Text(data['address'] ?? '', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+              IconButton(icon: const Icon(Icons.delete_forever, color: Colors.white), onPressed: () => _confirmDelete(context, () => doc.reference.delete(), "Xoá nhà tại ${data['address']}?"))
             ]),
           ),
-          Padding(
-            padding: const EdgeInsets.all(15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("👤 ${data['name']} - ${data['phone']}", style: const TextStyle(fontWeight: FontWeight.bold)),
-                const Divider(),
-                _feeRow("Điện", "KWH", "${data['electricPrice'] ?? 0} đ"),
-                _feeRow("Nước", "phòng", "${data['waterPrice'] ?? 0} đ"),
-                const SizedBox(height: 15),
-                Row(children: [
-                  Expanded(child: ElevatedButton.icon(
-                    onPressed: () => _showHouseForm(context, doc: doc), 
-                    icon: const Icon(Icons.edit), label: const Text("Sửa nhà"), 
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white)
-                  )),
-                  const SizedBox(width: 10),
-                  Expanded(child: ElevatedButton.icon(
-                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RoomListScreen(houseId: doc.id, houseName: data['address']))), 
-                    icon: const Icon(Icons.door_sliding), label: const Text("DS Phòng"), 
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF6D00), foregroundColor: Colors.white)
-                  )),
-                ]),
-              ],
-            ),
-          )
+          Padding(padding: const EdgeInsets.all(15), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text("👤 ${data['name']} - ${data['phone']}", style: const TextStyle(fontWeight: FontWeight.bold)),
+            const Divider(),
+            _feeRow("Điện", "KWH", "${data['electricPrice'] ?? 0} đ"),
+            _feeRow("Nước", "phòng", "${data['waterPrice'] ?? 0} đ"),
+            const SizedBox(height: 15),
+            Row(children: [
+              Expanded(child: ElevatedButton.icon(onPressed: () => _showHouseForm(context, uid: FirebaseAuth.instance.currentUser!.uid, doc: doc), icon: const Icon(Icons.edit), label: const Text("Sửa nhà"), style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, foregroundColor: Colors.white))),
+              const SizedBox(width: 10),
+              Expanded(child: ElevatedButton.icon(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RoomListScreen(houseId: doc.id, houseName: data['address']))), icon: const Icon(Icons.door_sliding), label: const Text("DS Phòng"), style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF6D00), foregroundColor: Colors.white))),
+            ]),
+          ]))
         ],
       ),
     );
   }
 
-  Widget _feeRow(String l, String u, String p) {
-    return Padding(padding: const EdgeInsets.symmetric(vertical: 2), child: Row(children: [Expanded(child: Text(l)), Expanded(child: Text(u, textAlign: TextAlign.center)), Expanded(child: Text(p, textAlign: TextAlign.right, style: const TextStyle(fontWeight: FontWeight.bold)))]));
-  }
-
-  void _showHouseForm(BuildContext context, {String? uid, DocumentSnapshot? doc}) {
+  void _showHouseForm(BuildContext context, {required String uid, DocumentSnapshot? doc}) {
     Map<String, dynamic>? data = doc?.data() as Map<String, dynamic>?;
-    final n = TextEditingController(text: data?['name']), 
-          p = TextEditingController(text: data?['phone']), 
-          a = TextEditingController(text: data?['address']), 
-          ep = TextEditingController(text: data?['electricPrice']), 
-          wp = TextEditingController(text: data?['waterPrice']);
+    final n = TextEditingController(text: data?['name']), p = TextEditingController(text: data?['phone']), a = TextEditingController(text: data?['address']), ep = TextEditingController(text: data?['electricPrice']), wp = TextEditingController(text: data?['waterPrice']);
 
     showModalBottomSheet(context: context, isScrollControlled: true, builder: (context) => Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom, left: 20, right: 20, top: 20),
@@ -94,20 +97,30 @@ class HouseListScreen extends StatelessWidget {
         Text(doc == null ? "Tạo thông tin căn nhà" : "Sửa thông tin căn nhà", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         TextField(controller: n, decoration: const InputDecoration(labelText: "Tên quản lý *")),
         TextField(controller: p, decoration: const InputDecoration(labelText: "Điện thoại *")),
-        TextField(controller: a, decoration: const InputDecoration(labelText: "Địa chỉ *")),
+        TextField(controller: a, decoration: const InputDecoration(labelText: "Địa chỉ nhà *")),
         Row(children: [Expanded(child: TextField(controller: ep, decoration: const InputDecoration(labelText: "Giá điện"))), const SizedBox(width: 10), Expanded(child: TextField(controller: wp, decoration: const InputDecoration(labelText: "Giá nước")))]),
         const SizedBox(height: 20),
-        ElevatedButton(onPressed: () {
-          final payload = {'name': n.text, 'phone': p.text, 'address': a.text, 'electricPrice': ep.text, 'waterPrice': wp.text};
-          if (doc == null) {
-            FirebaseFirestore.instance.collection('houses').add({...payload, 'userId': uid});
-          } else {
-            doc.reference.update(payload);
+        ElevatedButton(onPressed: () async {
+          if (a.text.isEmpty) return;
+          if (await _isAddressDuplicate(a.text, uid, doc?.id)) {
+            if (context.mounted) _showErrorAlert(context, "Trùng địa chỉ", "Địa chỉ '${a.text}' đã có trong danh sách của bạn. Vui lòng kiểm tra lại.");
+            return;
           }
-          Navigator.pop(context);
+          final payload = {'name': n.text, 'phone': p.text, 'address': a.text, 'electricPrice': ep.text, 'waterPrice': wp.text};
+          if (doc == null) { FirebaseFirestore.instance.collection('houses').add({...payload, 'userId': uid}); }
+          else { doc.reference.update(payload); }
+          if (context.mounted) Navigator.pop(context);
         }, child: Text(doc == null ? "LƯU THÔNG TIN" : "CẬP NHẬT")),
         const SizedBox(height: 20),
       ]),
     ));
+  }
+
+  void _confirmDelete(BuildContext context, Function onDelete, String title) {
+    showDialog(context: context, builder: (context) => AlertDialog(title: const Text("Xác nhận"), content: Text(title), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("Hủy")), TextButton(onPressed: () { onDelete(); Navigator.pop(context); }, child: const Text("Xoá", style: TextStyle(color: Colors.red)))]));
+  }
+
+  Widget _feeRow(String l, String u, String p) {
+    return Padding(padding: const EdgeInsets.symmetric(vertical: 2), child: Row(children: [Expanded(child: Text(l)), Expanded(child: Text(u, textAlign: TextAlign.center)), Expanded(child: Text(p, textAlign: TextAlign.right, style: const TextStyle(fontWeight: FontWeight.bold)))]));
   }
 }
