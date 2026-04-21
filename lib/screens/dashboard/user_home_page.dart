@@ -135,67 +135,67 @@ class UserHomePage extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('bills')
-                  .where('userId', isEqualTo: user?.uid)
-                  .orderBy('createdAt', descending: true)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+            // StreamBuilder<QuerySnapshot>(
+            //   stream: FirebaseFirestore.instance
+            //       .collection('bills')
+            //       .where('userId', isEqualTo: user?.uid)
+            //       .orderBy('createdAt', descending: true)
+            //       .snapshots(),
+            //   builder: (context, snapshot) {
+            //     if (!snapshot.hasData) {
+            //       return const Center(child: CircularProgressIndicator());
+            //     }
 
-                var docs = snapshot.data!.docs;
+            //     var docs = snapshot.data!.docs;
 
-                if (docs.isEmpty) {
-                  return const Text("Không có hóa đơn");
-                }
+            //     if (docs.isEmpty) {
+            //       return const Text("Không có hóa đơn");
+            //     }
 
-                var bill = docs.first;
+            //     var bill = docs.first;
 
-                String month = "${bill['month']}/${bill['year']}";
+            //     String month = "${bill['month']}/${bill['year']}";
 
-                return Card(
-                  elevation: 6,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: ListTile(
-                    leading: const Icon(
-                      Icons.receipt_long,
-                      color: Colors.green,
-                      size: 40,
-                    ),
+            //     return Card(
+            //       elevation: 6,
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(15),
+            //       ),
+            //       child: ListTile(
+            //         leading: const Icon(
+            //           Icons.receipt_long,
+            //           color: Colors.green,
+            //           size: 40,
+            //         ),
 
-                    title: Text("Tiền phòng tháng $month"),
+            //         title: Text("Tiền phòng tháng $month"),
 
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Phòng: ${bill['roomName']}"),
-                        Text(
-                          "Trạng thái: ${bill['status']}",
-                          style: TextStyle(
-                            color: bill['status'] == 'Đã thanh toán'
-                                ? Colors.green
-                                : Colors.red,
-                          ),
-                        ),
-                      ],
-                    ),
+            //         subtitle: Column(
+            //           crossAxisAlignment: CrossAxisAlignment.start,
+            //           children: [
+            //             Text("Phòng: ${bill['roomName']}"),
+            //             Text(
+            //               "Trạng thái: ${bill['status']}",
+            //               style: TextStyle(
+            //                 color: bill['status'] == 'Đã thanh toán'
+            //                     ? Colors.green
+            //                     : Colors.red,
+            //               ),
+            //             ),
+            //           ],
+            //         ),
 
-                    trailing: Text(
-                      _formatMoney(bill['totalAmount']),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
+            //         trailing: Text(
+            //           _formatMoney(bill['totalAmount']),
+            //           style: const TextStyle(
+            //             fontWeight: FontWeight.bold,
+            //             color: Colors.red,
+            //           ),
+            //         ),
+            //       ),
+            //     );
+            //   },
+            // ),
 
             const SizedBox(height: 20),
 
