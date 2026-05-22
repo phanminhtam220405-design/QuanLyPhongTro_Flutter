@@ -367,7 +367,7 @@ class _IncidentScreenState extends State<IncidentScreen> {
           children: [
             const Text(
               "Hãy nhập chi phí sửa chữa để hệ thống lưu vào mục Quản lý chi.",
-              style: TextStyle(fontSize: 13, color: Colors.grey),
+              style: TextStyle(fontSize: 13, color: Colors.white),
             ),
             const SizedBox(height: 15),
             TextField(

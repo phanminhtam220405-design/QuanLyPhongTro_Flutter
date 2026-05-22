@@ -87,7 +87,6 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
 
               const SizedBox(height: 20),
 
-              // ✏️ LÝ DO
               TextField(
                 controller: reason,
                 decoration: InputDecoration(
@@ -101,7 +100,6 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
 
               const SizedBox(height: 15),
 
-              // 💰 SỐ TIỀN
               TextField(
                 controller: amount,
                 keyboardType: TextInputType.number,
@@ -120,7 +118,6 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
 
               const SizedBox(height: 25),
 
-              // 🔘 BUTTON
               Row(
                 children: [
                   Expanded(

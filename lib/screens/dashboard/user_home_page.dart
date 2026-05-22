@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-// import màn hình
 import '../notifications/notification_page.dart';
 import '../incident_page.dart';
 import '../function_user/bill_history_page.dart';
@@ -20,7 +19,6 @@ class UserHomePage extends StatelessWidget {
         backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
         actions: [
-          // 🔔 GIỮ NGUYÊN NOTIFICATION CỦA BẠN
           Stack(
             children: [
               IconButton(
@@ -74,7 +72,6 @@ class UserHomePage extends StatelessWidget {
             ],
           ),
 
-          // 🚪 Logout
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
@@ -90,7 +87,6 @@ class UserHomePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 👤 USER INFO
             FutureBuilder<DocumentSnapshot>(
               future: FirebaseFirestore.instance
                   .collection('users')
@@ -118,7 +114,7 @@ class UserHomePage extends StatelessWidget {
                     ),
                     title: Text("Chào, ${data['name']}"),
                     subtitle: Text(
-                      "Phòng: ${data['house_id'] == '' ? 'Chưa gán' : data['house_id']}",
+                      "Phòng: ${data['room_name'] == '' ? 'Chưa gán' : data['room_name']}",
                     ),
                   ),
                 );
@@ -127,7 +123,6 @@ class UserHomePage extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // 💰 BILL
             const Text(
               "Hóa đơn tháng này",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -196,10 +191,8 @@ class UserHomePage extends StatelessWidget {
             //     );
             //   },
             // ),
-
             const SizedBox(height: 20),
 
-            // ⚡ MENU
             const Text(
               "Tiện ích nhanh",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -214,7 +207,6 @@ class UserHomePage extends StatelessWidget {
               mainAxisSpacing: 10,
               crossAxisSpacing: 10,
               children: [
-                // 🚨 INCIDENT
                 _menu(context, "Báo hỏng hóc", Icons.report, Colors.orange, () {
                   Navigator.push(
                     context,

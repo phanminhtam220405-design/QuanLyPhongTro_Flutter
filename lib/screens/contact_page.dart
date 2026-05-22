@@ -9,7 +9,6 @@ class ContactScreen extends StatefulWidget {
 }
 
 class _ContactScreenState extends State<ContactScreen> {
-  // Đưa Controllers ra ngoài hàm build để không bị reset khi render lại UI
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
@@ -183,7 +182,6 @@ class _ContactScreenState extends State<ContactScreen> {
     );
   }
 
-  // Widget để tạo TextField
   Widget _buildTextField(
     TextEditingController controller,
     String label,
@@ -210,7 +208,6 @@ class _ContactScreenState extends State<ContactScreen> {
     );
   }
 
-  // Widget hiển thị thông tin liên hệ
   Widget _buildContactInfoCard() {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -227,7 +224,6 @@ class _ContactScreenState extends State<ContactScreen> {
     );
   }
 
-  // Widget để hiển thị từng mục thông tin liên hệ
   Widget _contactItem(IconData icon, String title, String value) {
     return Row(
       children: [
