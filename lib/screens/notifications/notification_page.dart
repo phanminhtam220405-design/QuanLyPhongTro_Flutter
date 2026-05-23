@@ -13,7 +13,9 @@ class NotificationPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Thông báo"),
-        backgroundColor: Colors.indigo,
+        backgroundColor: const Color(0xFF1976D2),
+        centerTitle: true,
+        elevation: 0,
         foregroundColor: Colors.white,
         actions: [
           // Nút đánh dấu tất cả đã đọc
@@ -57,7 +59,11 @@ class NotificationPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.notifications_off, size: 80, color: Colors.grey.shade400),
+                  Icon(
+                    Icons.notifications_off,
+                    size: 80,
+                    color: Colors.grey.shade400,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     'Chưa có thông báo nào',
@@ -102,12 +108,17 @@ class NotificationPage extends StatelessWidget {
                 },
                 // Hiển thị thông báo
                 child: Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  color: isRead ? Colors.white : Colors.indigo.shade50,
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  color: isRead ? Colors.white : const Color(0xFFEAF3FF),
                   elevation: isRead ? 1 : 3,
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: _getNotificationColor(type).withOpacity(0.2),
+                      backgroundColor: _getNotificationColor(
+                        type,
+                      ).withOpacity(0.2),
                       child: Icon(
                         _getNotificationIcon(type),
                         color: _getNotificationColor(type),
@@ -119,7 +130,9 @@ class NotificationPage extends StatelessWidget {
                           child: Text(
                             title,
                             style: TextStyle(
-                              fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
+                              fontWeight: isRead
+                                  ? FontWeight.normal
+                                  : FontWeight.bold,
                               fontSize: 16,
                             ),
                           ),
@@ -169,7 +182,13 @@ class NotificationPage extends StatelessWidget {
                       }
 
                       // Hiển thị chi tiết thông báo
-                      _showNotificationDetail(context, title, message, timestamp, type);
+                      _showNotificationDetail(
+                        context,
+                        title,
+                        message,
+                        timestamp,
+                        type,
+                      );
                     },
                   ),
                 ),
@@ -256,12 +275,7 @@ class NotificationPage extends StatelessWidget {
               color: _getNotificationColor(type),
             ),
             const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(fontSize: 18),
-              ),
-            ),
+            Expanded(child: Text(title, style: const TextStyle(fontSize: 18))),
           ],
         ),
         content: SingleChildScrollView(
@@ -269,25 +283,25 @@ class NotificationPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                message,
-                style: const TextStyle(fontSize: 16),
-              ),
+              Text(message, style: const TextStyle(fontSize: 16)),
               const SizedBox(height: 16),
               const Divider(),
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.access_time, size: 16, color: Colors.grey.shade600),
+                  Icon(
+                    Icons.access_time,
+                    size: 16,
+                    color: Colors.grey.shade600,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     timestamp != null
-                        ? DateFormat('dd/MM/yyyy HH:mm').format(timestamp.toDate())
+                        ? DateFormat(
+                            'dd/MM/yyyy HH:mm',
+                          ).format(timestamp.toDate())
                         : '',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                   ),
                 ],
               ),

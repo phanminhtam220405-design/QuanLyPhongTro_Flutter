@@ -21,7 +21,7 @@ class _IncidentScreenState extends State<IncidentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2),
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: const Color(0xFF1976D2),
         foregroundColor: Colors.white,
@@ -69,7 +69,7 @@ class _IncidentScreenState extends State<IncidentScreen> {
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -111,13 +111,28 @@ class _IncidentScreenState extends State<IncidentScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  data['title'] ?? 'Sự cố',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.build_circle_outlined,
+                      color: Color(0xFF1976D2),
+                    ),
+
+                    const SizedBox(width: 8),
+
+                    Expanded(
+                      child: Text(
+                        data['title'] ?? 'Sự cố',
+
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+
                 const SizedBox(height: 10),
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -218,7 +233,7 @@ class _IncidentScreenState extends State<IncidentScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              "Báo sự cố mới",
+              "Gửi yêu cầu sửa chữa",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -239,7 +254,7 @@ class _IncidentScreenState extends State<IncidentScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1976D2),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(18),
                   ),
                 ),
                 onPressed: () {
@@ -422,7 +437,7 @@ class _IncidentScreenState extends State<IncidentScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "Chi tiết sự cố",
+              "Thông tin sự cố",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
 

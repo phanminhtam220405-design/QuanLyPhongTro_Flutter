@@ -34,11 +34,16 @@ class _FeeEntryScreenState extends State<FeeEntryScreen> {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF2F2F2),
+        backgroundColor: const Color(0xFFF5F7FA),
         appBar: AppBar(
           backgroundColor: const Color(0xFF1976D2),
           foregroundColor: Colors.white,
-          title: const Text("Quản lý Hóa đơn & Báo phí"),
+          title: const Text(
+            "Quản lý hóa đơn",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
+          elevation: 0,
         ),
         body: Column(
           children: [
@@ -73,7 +78,7 @@ class _FeeEntryScreenState extends State<FeeEntryScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(16),
                             border: Border.all(color: Colors.grey.shade300),
                           ),
                           child: DropdownButton<String>(
@@ -150,11 +155,19 @@ class _FeeEntryScreenState extends State<FeeEntryScreen> {
             ),
             Container(
               color: Colors.white,
-              child: const TabBar(
+              child: TabBar(
                 isScrollable: true,
-                labelColor: Color(0xFF1976D2),
+                labelColor: Colors.white,
                 unselectedLabelColor: Colors.grey,
-                indicatorColor: Color(0xFF1976D2),
+                indicator: BoxDecoration(
+                  color: const Color(0xFF1976D2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                indicatorPadding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 6,
+                ),
+
                 labelStyle: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -272,151 +285,170 @@ class _FeeEntryScreenState extends State<FeeEntryScreen> {
     String status,
     Map<String, dynamic>? invoiceData,
   ) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 15),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    Color statusColor = status == "Đã đóng"
+        ? Colors.green
+        : status == "Đóng một phần"
+        ? Colors.orange
+        : status == "Đã báo"
+        ? Colors.blue
+        : Colors.red;
+    IconData statusIcon = status == "Đã đóng"
+        ? Icons.check_circle
+        : status == "Đóng một phần"
+        ? Icons.payments
+        : status == "Đã báo"
+        ? Icons.receipt_long
+        : Icons.warning_amber;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Align(
-                  alignment: Alignment.topRight,
-                  child: TextButton(
-                    onPressed: () {
-                      if (invoiceData != null)
-                        _showInvoiceDetails(
-                          context,
-                          invoiceData,
-                          roomName,
-                          roomId,
-                          roomPrice,
-                        );
-                    },
-                    child: const Text(
-                      "Xem chi tiết",
-                      style: TextStyle(
-                        color: Colors.red,
-                        decoration: TextDecoration.underline,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
+                CircleAvatar(
+                  radius: 24,
+                  backgroundColor: statusColor.withOpacity(0.1),
+                  child: Icon(statusIcon, color: statusColor),
                 ),
-                Text(
-                  "Phòng $roomName",
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  "Người thuê: $tenant - ĐT: $phone",
-                  style: const TextStyle(color: Colors.black87),
-                ),
-                const SizedBox(height: 20),
-
-                if (status == "Chưa báo")
-                  SizedBox(
-                    width: double.infinity,
-                    height: 45,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFAB47BC),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CreateInvoicePage(
-                              houseId: selectedHouseId!,
-                              roomId: roomId,
-                              roomName: roomName,
-                              tenantName: tenant,
-                              roomPrice: roomPrice,
-                              electricPrice: 4000,
-                              waterPrice: 20000,
-                              selectedMonth: selectedDate.month,
-                              selectedYear: selectedDate.year,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        "Báo phí tháng ${selectedDate.month} cho khách",
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Phòng $roomName",
                         style: const TextStyle(
-                          color: Colors.white,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
-                  )
-                else
-                  SizedBox(
-                    width: double.infinity,
-                    height: 45,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: status == 'Đã đóng'
-                            ? Colors.green
-                            : Colors.orange,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      onPressed: () {
-                        if (invoiceData != null)
-                          _showInvoiceDetails(
-                            context,
-                            invoiceData,
-                            roomName,
-                            roomId,
-                            roomPrice,
-                          );
-                      },
-                      child: Text(
-                        "Hóa đơn: $status (Chi tiết)",
+                      const SizedBox(height: 4),
+                      Text(
+                        tenant,
                         style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                          fontSize: 13,
                         ),
                       ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Text(
+                    status,
+                    style: TextStyle(
+                      color: statusColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
                     ),
                   ),
+                ),
               ],
             ),
-          ),
-          if (status == "Chưa báo")
-            Positioned(
-              top: 15,
-              left: -25,
-              child: Transform.rotate(
-                angle: -0.7,
-                child: Container(
-                  color: Colors.red,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 30,
-                    vertical: 4,
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                const Icon(Icons.phone, size: 18, color: Colors.grey),
+                const SizedBox(width: 8),
+                Text(phone, style: const TextStyle(color: Colors.black87)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const Icon(Icons.attach_money, size: 18, color: Colors.orange),
+                const SizedBox(width: 8),
+                Text(
+                  formatVND(roomPrice),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
                   ),
-                  child: const Text(
-                    "Chưa báo phí",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 25),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton.icon(
+                icon: Icon(
+                  status == "Chưa báo"
+                      ? Icons.add_circle_outline
+                      : Icons.visibility_outlined,
+                  color: Colors.white,
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: status == "Chưa báo"
+                      ? const Color(0xFFAB47BC)
+                      : statusColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                onPressed: () {
+                  if (status == "Chưa báo") {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CreateInvoicePage(
+                          houseId: selectedHouseId!,
+                          roomId: roomId,
+                          roomName: roomName,
+                          tenantName: tenant,
+                          roomPrice: roomPrice,
+                          electricPrice: 4000,
+                          waterPrice: 20000,
+                          selectedMonth: selectedDate.month,
+                          selectedYear: selectedDate.year,
+                        ),
+                      ),
+                    );
+                  } else {
+                    if (invoiceData != null) {
+                      _showInvoiceDetails(
+                        context,
+                        invoiceData,
+                        roomName,
+                        roomId,
+                        roomPrice,
+                      );
+                    }
+                  }
+                },
+                label: Text(
+                  status == "Chưa báo" ? "TẠO HÓA ĐƠN" : "XEM CHI TIẾT",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }

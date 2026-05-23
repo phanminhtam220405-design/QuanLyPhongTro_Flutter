@@ -16,9 +16,18 @@ class CreateInvoicePage extends StatefulWidget {
   final Map<String, dynamic>? existingData;
 
   const CreateInvoicePage({
-    super.key, required this.houseId, required this.roomId, required this.roomName,
-    required this.tenantName, required this.roomPrice, required this.electricPrice, required this.waterPrice,
-    required this.selectedMonth, required this.selectedYear, this.invoiceId, this.existingData,
+    super.key,
+    required this.houseId,
+    required this.roomId,
+    required this.roomName,
+    required this.tenantName,
+    required this.roomPrice,
+    required this.electricPrice,
+    required this.waterPrice,
+    required this.selectedMonth,
+    required this.selectedYear,
+    this.invoiceId,
+    this.existingData,
   });
 
   @override
@@ -51,7 +60,8 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
       oldWaterCtrl.text = widget.existingData!['waterOld']?.toString() ?? '';
       newWaterCtrl.text = widget.existingData!['waterNew']?.toString() ?? '';
       xeCountCtrl.text = widget.existingData!['xeCount']?.toString() ?? '0';
-      internetCtrl.text = widget.existingData!['internet']?.toString() ?? '100000';
+      internetCtrl.text =
+          widget.existingData!['internet']?.toString() ?? '100000';
       giatSayCtrl.text = widget.existingData!['giatsay']?.toString() ?? '50000';
       racCtrl.text = widget.existingData!['rac']?.toString() ?? '17000';
       thangMayCtrl.text = widget.existingData!['thangmay']?.toString() ?? '0';
@@ -85,18 +95,29 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
     double dichvu = double.tryParse(dichVuCtrl.text) ?? 0;
 
     setState(() {
-      totalAmount = widget.roomPrice + elecTotal + waterTotal + xeTotal + internet + giatsay + rac + thangmay + dichvu;
+      totalAmount =
+          widget.roomPrice +
+          elecTotal +
+          waterTotal +
+          xeTotal +
+          internet +
+          giatsay +
+          rac +
+          thangmay +
+          dichvu;
     });
   }
 
   Future<void> _saveInvoice() async {
     if (totalAmount < widget.roomPrice) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Lỗi tính toán số tiền!")));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Lỗi tính toán số tiền!")));
       return;
     }
     try {
       final uid = FirebaseAuth.instance.currentUser!.uid;
-      
+
       Map<String, dynamic> payload = {
         'userId': uid,
         'houseId': widget.houseId,
@@ -126,12 +147,17 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
         List newHistory = List.from(widget.existingData?['history'] ?? []);
         newHistory.add({
           'time': DateTime.now().toIso8601String(),
-          'msg': 'Cập nhật lại hóa đơn: ${formatVND(totalAmount)}'
+          'msg': 'Cập nhật lại hóa đơn: ${formatVND(totalAmount)}',
         });
         payload['history'] = newHistory;
-        await FirebaseFirestore.instance.collection('bills').doc(widget.invoiceId).update(payload);
+        await FirebaseFirestore.instance
+            .collection('bills')
+            .doc(widget.invoiceId)
+            .update(payload);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Đã cập nhật hóa đơn thành công!")));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Đã cập nhật hóa đơn thành công!")),
+          );
           Navigator.pop(context);
         }
       } else {
@@ -141,17 +167,21 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
         payload['history'] = [
           {
             'time': DateTime.now().toIso8601String(),
-            'msg': 'Lập hóa đơn: ${formatVND(totalAmount)}'
-          }
+            'msg': 'Lập hóa đơn: ${formatVND(totalAmount)}',
+          },
         ];
         await FirebaseFirestore.instance.collection('bills').add(payload);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Đã xuất hóa đơn thành công!")));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Đã xuất hóa đơn thành công!")),
+          );
           Navigator.pop(context);
         }
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Lỗi: $e")));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Lỗi: $e")));
     }
   }
 
@@ -159,10 +189,22 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
   Widget build(BuildContext context) {
     bool isEditing = widget.invoiceId != null;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
-        title: Text(isEditing ? "Sửa hóa đơn T${widget.selectedMonth}/${widget.selectedYear}" : "Báo phí T${widget.selectedMonth}/${widget.selectedYear}"), 
-        backgroundColor: const Color(0xFF1976D2), 
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              isEditing ? "Cập nhật hóa đơn" : "Tạo hóa đơn",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              "Tháng ${widget.selectedMonth}/${widget.selectedYear}",
+              style: const TextStyle(fontSize: 12, color: Colors.white70),
+            ),
+          ],
+        ),
+        backgroundColor: const Color(0xFF1976D2),
         foregroundColor: Colors.white,
         elevation: 0,
       ),
@@ -173,10 +215,29 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
           children: [
             _buildFakeDropdown("Nhà ID: ${widget.houseId.substring(0, 5)}..."),
             const SizedBox(height: 10),
-            _buildFakeDropdown("Phòng: ${widget.roomName} - ${widget.tenantName}"),
+            _buildFakeDropdown(
+              "Phòng: ${widget.roomName} - ${widget.tenantName}",
+            ),
             const SizedBox(height: 25),
 
-            Text("Chỉ số Điện - ${formatVND(widget.electricPrice)}/Kwh", style: const TextStyle(color: Color(0xFF1976D2), fontWeight: FontWeight.bold, fontSize: 16)),
+            Row(
+              children: [
+                const Icon(Icons.flash_on, color: Colors.orange),
+
+                const SizedBox(width: 8),
+
+                Text(
+                  "Điện - ${formatVND(widget.electricPrice)}/Kwh",
+
+                  style: const TextStyle(
+                    color: Color(0xFF1976D2),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                  ),
+                ),
+              ],
+            ),
+
             const SizedBox(height: 10),
             Row(
               children: [
@@ -187,7 +248,20 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
             ),
             const SizedBox(height: 25),
 
-            Text("Chỉ số Nước - ${formatVND(widget.waterPrice)}/Khối", style: const TextStyle(color: Color(0xFF1976D2), fontWeight: FontWeight.bold, fontSize: 16)),
+            Row(
+              children: [
+                const Icon(Icons.water_drop, color: Colors.blue),
+                const SizedBox(width: 8),
+                Text(
+                  "Nước - ${formatVND(widget.waterPrice)}/Khối",
+                  style: const TextStyle(
+                    color: Color(0xFF1976D2),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 10),
             Row(
               children: [
@@ -198,7 +272,14 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
             ),
             const SizedBox(height: 25),
 
-            const Text("Các loại phí dịch vụ (đ/Phòng)", style: TextStyle(color: Color(0xFF1976D2), fontWeight: FontWeight.bold, fontSize: 16)),
+            const Text(
+              "Các loại phí dịch vụ (đ/Phòng)",
+              style: TextStyle(
+                color: Color(0xFF1976D2),
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
             const SizedBox(height: 10),
             Row(
               children: [
@@ -219,52 +300,146 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
             _buildTextField("Phí dịch vụ khác", dichVuCtrl),
             const SizedBox(height: 25),
 
-            const Text("Gửi Xe (10.000đ/Chiếc)", style: TextStyle(color: Color(0xFF1976D2), fontWeight: FontWeight.bold, fontSize: 16)),
+            const Text(
+              "Gửi Xe (10.000đ/Chiếc)",
+              style: TextStyle(
+                color: Color(0xFF1976D2),
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
             const SizedBox(height: 10),
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.4,
               child: _buildTextField("Số lượng xe", xeCountCtrl),
             ),
-            
+
             const SizedBox(height: 30),
             const Divider(thickness: 2),
             const SizedBox(height: 10),
-            
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text("Tiền phòng cơ bản:", style: TextStyle(fontSize: 16)),
-                Text(formatVND(widget.roomPrice), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              ],
+            Container(
+              width: double.infinity,
+
+              padding: const EdgeInsets.all(20),
+
+              decoration: BoxDecoration(
+                color: Colors.white,
+
+                borderRadius: BorderRadius.circular(22),
+
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 14,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                    children: [
+                      const Text("Tiền phòng:", style: TextStyle(fontSize: 15)),
+
+                      Text(
+                        formatVND(widget.roomPrice),
+
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+
+                  const Divider(height: 25),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                    children: [
+                      const Text(
+                        "TỔNG THANH TOÁN",
+
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      Text(
+                        formatVND(totalAmount),
+
+                        style: const TextStyle(
+                          fontSize: 28,
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
+
             const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text("TỔNG THANH TOÁN:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                Text(formatVND(totalAmount), style: const TextStyle(fontSize: 24, color: Colors.red, fontWeight: FontWeight.bold)),
+                const Text(
+                  "TỔNG THANH TOÁN:",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  formatVND(totalAmount),
+                  style: const TextStyle(
+                    fontSize: 24,
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
 
             const SizedBox(height: 30),
             SizedBox(
-              width: double.infinity, height: 50,
+              width: double.infinity,
+              height: 50,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isEditing ? Colors.blue : const Color(0xFFFF9800),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
+                  backgroundColor: isEditing
+                      ? Colors.blue
+                      : const Color(0xFFFF9800),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+
+                  elevation: 2,
                 ),
                 onPressed: _saveInvoice,
-                child: Text(isEditing ? "CẬP NHẬT HÓA ĐƠN" : "TÍNH TIỀN & XUẤT HÓA ĐƠN", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                child: Text(
+                  isEditing ? "CẬP NHẬT HÓA ĐƠN" : "TÍNH TIỀN & XUẤT HÓA ĐƠN",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 15),
             Center(
               child: TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text("Hủy bỏ", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                child: const Text(
+                  "Hủy bỏ",
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -275,25 +450,34 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-      decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade400), borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade400),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [Text(text, style: const TextStyle(fontWeight: FontWeight.w500)), const Icon(Icons.keyboard_arrow_down, color: Colors.grey)],
+        children: [
+          Text(text, style: const TextStyle(fontWeight: FontWeight.w500)),
+          const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+        ],
       ),
     );
   }
 
   Widget _buildTextField(String label, TextEditingController ctrl) {
     return TextField(
-      controller: ctrl, 
-      keyboardType: TextInputType.number, 
+      controller: ctrl,
+      keyboardType: TextInputType.number,
       onChanged: (v) => _calculateTotal(),
       decoration: InputDecoration(
-        labelText: label, 
-        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold), 
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)), 
-        contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10)
-      ), 
+        labelText: label,
+        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 15,
+          vertical: 10,
+        ),
+      ),
     );
   }
 }

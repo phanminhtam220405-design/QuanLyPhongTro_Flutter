@@ -15,8 +15,13 @@ class UserHomePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Người Thuê Trọ"),
-        backgroundColor: Colors.indigo,
+        title: const Text(
+          "Trang khách thuê",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: const Color(0xFF1976D2),
         foregroundColor: Colors.white,
         actions: [
           Stack(
@@ -81,7 +86,7 @@ class UserHomePage extends StatelessWidget {
           ),
         ],
       ),
-
+      backgroundColor: const Color(0xFFF5F7FA),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -99,23 +104,96 @@ class UserHomePage extends StatelessWidget {
 
                 var data = snapshot.data!;
 
-                return Card(
-                  elevation: 5,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.indigo,
-                      child: Text(
-                        data['name'][0],
-                        style: const TextStyle(color: Colors.white),
+                return Container(
+                  padding: const EdgeInsets.all(20),
+
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF1976D2), Color(0xFF0D47A1)],
+                    ),
+
+                    borderRadius: BorderRadius.circular(24),
+
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 14,
+                        offset: const Offset(0, 6),
                       ),
-                    ),
-                    title: Text("Chào, ${data['name']}"),
-                    subtitle: Text(
-                      "Phòng: ${data['room_name'] == '' ? 'Chưa gán' : data['room_name']}",
-                    ),
+                    ],
+                  ),
+
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 32,
+                        backgroundColor: Colors.white24,
+
+                        child: Text(
+                          data['name'][0],
+
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(width: 18),
+
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+
+                          children: [
+                            const Text(
+                              "Xin chào 👋",
+
+                              style: TextStyle(color: Colors.white70),
+                            ),
+
+                            const SizedBox(height: 5),
+
+                            Text(
+                              data['name'],
+
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+
+                            const SizedBox(height: 10),
+
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+
+                              decoration: BoxDecoration(
+                                color: Colors.white24,
+
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+
+                              child: Text(
+                                data['room_name'] == ''
+                                    ? "Chưa có phòng"
+                                    : "Phòng ${data['room_name']}",
+
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 );
               },
@@ -130,67 +208,155 @@ class UserHomePage extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            // StreamBuilder<QuerySnapshot>(
-            //   stream: FirebaseFirestore.instance
-            //       .collection('bills')
-            //       .where('userId', isEqualTo: user?.uid)
-            //       .orderBy('createdAt', descending: true)
-            //       .snapshots(),
-            //   builder: (context, snapshot) {
-            //     if (!snapshot.hasData) {
-            //       return const Center(child: CircularProgressIndicator());
-            //     }
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('bills')
+                  .where('userId', isEqualTo: user?.uid)
+                  .orderBy('createdAt', descending: true)
+                  .snapshots(),
 
-            //     var docs = snapshot.data!.docs;
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-            //     if (docs.isEmpty) {
-            //       return const Text("Không có hóa đơn");
-            //     }
+                var docs = snapshot.data!.docs;
 
-            //     var bill = docs.first;
+                if (docs.isEmpty) {
+                  return Container(
+                    padding: const EdgeInsets.all(20),
 
-            //     String month = "${bill['month']}/${bill['year']}";
+                    decoration: BoxDecoration(
+                      color: Colors.white,
 
-            //     return Card(
-            //       elevation: 6,
-            //       shape: RoundedRectangleBorder(
-            //         borderRadius: BorderRadius.circular(15),
-            //       ),
-            //       child: ListTile(
-            //         leading: const Icon(
-            //           Icons.receipt_long,
-            //           color: Colors.green,
-            //           size: 40,
-            //         ),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
 
-            //         title: Text("Tiền phòng tháng $month"),
+                    child: const Center(child: Text("Chưa có hóa đơn")),
+                  );
+                }
 
-            //         subtitle: Column(
-            //           crossAxisAlignment: CrossAxisAlignment.start,
-            //           children: [
-            //             Text("Phòng: ${bill['roomName']}"),
-            //             Text(
-            //               "Trạng thái: ${bill['status']}",
-            //               style: TextStyle(
-            //                 color: bill['status'] == 'Đã thanh toán'
-            //                     ? Colors.green
-            //                     : Colors.red,
-            //               ),
-            //             ),
-            //           ],
-            //         ),
+                var bill = docs.first;
 
-            //         trailing: Text(
-            //           _formatMoney(bill['totalAmount']),
-            //           style: const TextStyle(
-            //             fontWeight: FontWeight.bold,
-            //             color: Colors.red,
-            //           ),
-            //         ),
-            //       ),
-            //     );
-            //   },
-            // ),
+                bool paid = bill['status'] == 'Đã thanh toán';
+
+                return Container(
+                  padding: const EdgeInsets.all(20),
+
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+
+                    borderRadius: BorderRadius.circular(22),
+
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 12,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 24,
+
+                            backgroundColor: paid
+                                ? Colors.green.withOpacity(0.1)
+                                : Colors.red.withOpacity(0.1),
+
+                            child: Icon(
+                              Icons.receipt_long,
+
+                              color: paid ? Colors.green : Colors.red,
+                            ),
+                          ),
+
+                          const SizedBox(width: 14),
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+
+                              children: [
+                                Text(
+                                  "Hóa đơn ${bill['month']}/${bill['year']}",
+
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 17,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 4),
+
+                                Text(
+                                  bill['roomName'],
+                                  style: const TextStyle(color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+
+                            decoration: BoxDecoration(
+                              color: paid
+                                  ? Colors.green.withOpacity(0.1)
+                                  : Colors.red.withOpacity(0.1),
+
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+
+                            child: Text(
+                              bill['status'],
+
+                              style: TextStyle(
+                                color: paid ? Colors.green : Colors.red,
+
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                        children: [
+                          const Text(
+                            "Tổng thanh toán",
+
+                            style: TextStyle(fontSize: 16),
+                          ),
+
+                          Text(
+                            _formatMoney(bill['totalAmount']),
+
+                            style: const TextStyle(
+                              fontSize: 24,
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+
             const SizedBox(height: 20),
 
             const Text(
@@ -276,9 +442,10 @@ class UserHomePage extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Card(
-        elevation: 4,
+        elevation: 2,
+        shadowColor: Colors.black12,
         color: color.withOpacity(0.1),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
