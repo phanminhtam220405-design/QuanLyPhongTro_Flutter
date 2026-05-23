@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
+// Đảm bảo các đường dẫn import này đúng với project của bạn
 import '../notifications/notification_page.dart';
 import '../incident_page.dart';
 import '../function_user/bill_history_page.dart';
@@ -9,421 +11,53 @@ import '../function_user/bill_history_page.dart';
 class UserHomePage extends StatelessWidget {
   const UserHomePage({super.key});
 
+  // Hàm format tiền tệ VNĐ
+  String _formatCurrency(dynamic amount) {
+    final formatter = NumberFormat.currency(locale: 'vi_VN', symbol: '₫');
+    return formatter.format(amount ?? 0);
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF3F6F9),
       appBar: AppBar(
-        title: const Text(
-          "Trang khách thuê",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: const Text("Trang Khách Thuê", style: TextStyle(fontWeight: FontWeight.w800)),
         centerTitle: true,
-        elevation: 0,
-        backgroundColor: const Color(0xFF1976D2),
+        backgroundColor: const Color(0xFF1565C0),
         foregroundColor: Colors.white,
+        elevation: 0,
         actions: [
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.notifications),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const NotificationPage(),
-                    ),
-                  );
-                },
-              ),
-              Positioned(
-                right: 8,
-                top: 8,
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('notifications')
-                      .where('user_id', isEqualTo: user?.uid)
-                      .where('is_read', isEqualTo: false)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-                    int unreadCount = snapshot.data!.docs.length;
-                    return Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 16,
-                        minHeight: 16,
-                      ),
-                      child: Text(
-                        unreadCount > 9 ? '9+' : '$unreadCount',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-
+          _buildNotificationIcon(context, user),
           IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.pushReplacementNamed(context, '/login');
-            },
+            icon: const Icon(Icons.power_settings_new),
+            onPressed: () => _handleLogout(context),
           ),
         ],
       ),
-      backgroundColor: const Color(0xFFF5F7FA),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        physics: const BouncingScrollPhysics(),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            FutureBuilder<DocumentSnapshot>(
-              future: FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(user?.uid)
-                  .get(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const LinearProgressIndicator();
-                }
-
-                var data = snapshot.data!;
-
-                return Container(
-                  padding: const EdgeInsets.all(20),
-
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF1976D2), Color(0xFF0D47A1)],
-                    ),
-
-                    borderRadius: BorderRadius.circular(24),
-
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        blurRadius: 14,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 32,
-                        backgroundColor: Colors.white24,
-
-                        child: Text(
-                          data['name'][0],
-
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 22,
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(width: 18),
-
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-
-                          children: [
-                            const Text(
-                              "Xin chào 👋",
-
-                              style: TextStyle(color: Colors.white70),
-                            ),
-
-                            const SizedBox(height: 5),
-
-                            Text(
-                              data['name'],
-
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-
-                            const SizedBox(height: 10),
-
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-
-                              decoration: BoxDecoration(
-                                color: Colors.white24,
-
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-
-                              child: Text(
-                                data['room_name'] == ''
-                                    ? "Chưa có phòng"
-                                    : "Phòng ${data['room_name']}",
-
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-
-            const SizedBox(height: 20),
-
-            const Text(
-              "Hóa đơn tháng này",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 10),
-
-            StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('bills')
-                  .where('userId', isEqualTo: user?.uid)
-                  .orderBy('createdAt', descending: true)
-                  .snapshots(),
-
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                var docs = snapshot.data!.docs;
-
-                if (docs.isEmpty) {
-                  return Container(
-                    padding: const EdgeInsets.all(20),
-
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-
-                    child: const Center(child: Text("Chưa có hóa đơn")),
-                  );
-                }
-
-                var bill = docs.first;
-
-                bool paid = bill['status'] == 'Đã thanh toán';
-
-                return Container(
-                  padding: const EdgeInsets.all(20),
-
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-
-                    borderRadius: BorderRadius.circular(22),
-
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 12,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 24,
-
-                            backgroundColor: paid
-                                ? Colors.green.withOpacity(0.1)
-                                : Colors.red.withOpacity(0.1),
-
-                            child: Icon(
-                              Icons.receipt_long,
-
-                              color: paid ? Colors.green : Colors.red,
-                            ),
-                          ),
-
-                          const SizedBox(width: 14),
-
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-
-                              children: [
-                                Text(
-                                  "Hóa đơn ${bill['month']}/${bill['year']}",
-
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 17,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 4),
-
-                                Text(
-                                  bill['roomName'],
-                                  style: const TextStyle(color: Colors.grey),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-
-                            decoration: BoxDecoration(
-                              color: paid
-                                  ? Colors.green.withOpacity(0.1)
-                                  : Colors.red.withOpacity(0.1),
-
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-
-                            child: Text(
-                              bill['status'],
-
-                              style: TextStyle(
-                                color: paid ? Colors.green : Colors.red,
-
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                        children: [
-                          const Text(
-                            "Tổng thanh toán",
-
-                            style: TextStyle(fontSize: 16),
-                          ),
-
-                          Text(
-                            _formatMoney(bill['totalAmount']),
-
-                            style: const TextStyle(
-                              fontSize: 24,
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-
-            const SizedBox(height: 20),
-
-            const Text(
-              "Tiện ích nhanh",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 10),
-
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              children: [
-                _menu(context, "Báo hỏng hóc", Icons.report, Colors.orange, () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const IncidentScreen()),
-                  );
-                }),
-
-                // 📜 BILL HISTORY
-                _menu(
-                  context,
-                  "Lịch sử hóa đơn",
-                  Icons.history,
-                  Colors.blue,
-                  () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const BillHistoryPage(),
-                      ),
-                    );
-                  },
-                ),
-
-                // 📋 RULE
-                _menu(context, "Nội quy trọ", Icons.rule, Colors.teal, () {
-                  showDialog(
-                    context: context,
-                    builder: (_) => const AlertDialog(
-                      title: Text("Nội quy"),
-                      content: Text("Không gây ồn sau 22h..."),
-                    ),
-                  );
-                }),
-
-                // ☎ CONTACT
-                _menu(
-                  context,
-                  "Liên hệ chủ nhà",
-                  Icons.phone,
-                  Colors.purple,
-                  () {
-                    showDialog(
-                      context: context,
-                      builder: (_) => const AlertDialog(
-                        title: Text("Liên hệ"),
-                        content: Text("SĐT: 090xxxxxxx"),
-                      ),
-                    );
-                  },
-                ),
-              ],
+            _buildHeader(user),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Hóa đơn tháng này", 
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF263238))),
+                  const SizedBox(height: 12),
+                  _buildCurrentBillCard(user),
+                  const SizedBox(height: 24),
+                  const Text("Tiện ích nhanh", 
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF263238))),
+                  const SizedBox(height: 12),
+                  _buildQuickMenu(context),
+                ],
+              ),
             ),
           ],
         ),
@@ -431,42 +65,199 @@ class UserHomePage extends StatelessWidget {
     );
   }
 
-  // 🎨 MENU UI
-  Widget _menu(
-    BuildContext context,
-    String title,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
+  Widget _buildHeader(User? user) {
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: Color(0xFF1565C0),
+        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 30),
+      child: FutureBuilder<DocumentSnapshot>(
+        future: FirebaseFirestore.instance.collection('users').doc(user?.uid).get(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const SizedBox(height: 80);
+          var data = snapshot.data!.data() as Map<String, dynamic>? ?? {};
+          return Row(
+            children: [
+              CircleAvatar(
+                radius: 35,
+                backgroundColor: Colors.white24,
+                child: Text(
+                  data['name'] != null ? data['name'][0].toUpperCase() : "?",
+                  style: const TextStyle(fontSize: 28, color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(width: 15),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text("Xin chào 👋", style: TextStyle(color: Colors.white70, fontSize: 14)),
+                    Text(data['name'] ?? "Khách thuê",
+                        style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 5),
+                    Chip(
+                      label: Text(
+                        data['room_name'] == '' || data['room_name'] == null ? "Chưa nhận phòng" : "Phòng: ${data['room_name']}",
+                        style: const TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                      backgroundColor: Colors.white,
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildCurrentBillCard(User? user) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('bills')
+          .where('userId', isEqualTo: user?.uid)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) return _buildStatusBox("Lỗi kết nối dữ liệu");
+        if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+
+        var docs = snapshot.data!.docs;
+        if (docs.isEmpty) return _buildStatusBox("Hiện tại bạn không có hóa đơn mới");
+
+        // Sắp xếp local để lấy hóa đơn mới nhất (tránh lỗi Index Firestore)
+        docs.sort((a, b) {
+          var t1 = a.get('createdAt') as Timestamp?;
+          var t2 = b.get('createdAt') as Timestamp?;
+          return (t2 ?? Timestamp.now()).compareTo(t1 ?? Timestamp.now());
+        });
+
+        var bill = docs.first.data() as Map<String, dynamic>;
+        String status = bill['status'] ?? "Đã báo";
+        double total = double.tryParse(bill['totalAmount'].toString()) ?? 0;
+        double paid = double.tryParse(bill['paidAmount']?.toString() ?? '0') ?? 0;
+        double remaining = total - paid;
+        
+        Color statusColor = status == "Đã đóng" ? Colors.green : (status == "Đóng một phần" ? Colors.orange : Colors.red);
+
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+          ),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Hóa đơn kỳ ${bill['month']}/${bill['year']}", 
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      Text(status == "Đã đóng" ? "Đã tất toán" : "Còn nợ: ${_formatCurrency(remaining)}",
+                          style: TextStyle(color: status == "Đã đóng" ? Colors.green : Colors.red, fontSize: 13, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(color: statusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                    child: Text(status, style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12)),
+                  ),
+                ],
+              ),
+              const Divider(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text("Tổng hóa đơn:", style: TextStyle(fontSize: 15)),
+                  Text(_formatCurrency(total), style: const TextStyle(fontSize: 19, color: Colors.blue, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              if (paid > 0) ...[
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Đã đóng trước:", style: TextStyle(fontSize: 14, color: Colors.grey)),
+                    Text(_formatCurrency(paid), style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ]
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStatusBox(String msg) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(30),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+      child: Center(child: Text(msg, style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w500))),
+    );
+  }
+
+  Widget _buildQuickMenu(BuildContext context) {
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: 2,
+      crossAxisSpacing: 15,
+      mainAxisSpacing: 15,
+      childAspectRatio: 1.2,
+      children: [
+        _buildMenuButton(context, "Báo hỏng", Icons.build_circle, Colors.orange, () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => IncidentScreen()));
+        }),
+        _buildMenuButton(context, "Lịch sử hóa đơn", Icons.history_edu, Colors.blue, () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => BillHistoryPage()));
+        }),
+        _buildMenuButton(context, "Nội quy", Icons.gavel_rounded, Colors.teal, () => _showModal(context, "Nội quy", "1. Giữ vệ sinh chung\n2. Không ồn sau 23h")),
+        _buildMenuButton(context, "Liên hệ", Icons.phone_in_talk, Colors.purple, () => _showModal(context, "Liên hệ", "Hotline: 0901.234.567")),
+      ],
+    );
+  }
+
+  Widget _buildMenuButton(BuildContext context, String title, IconData icon, Color color, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      child: Card(
-        elevation: 2,
-        shadowColor: Colors.black12,
-        color: color.withOpacity(0.1),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 40, color: color),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: TextStyle(fontWeight: FontWeight.bold, color: color),
-            ),
-          ],
-        ),
+      child: Container(
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: color.withOpacity(0.1))),
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icon, size: 40, color: color), const SizedBox(height: 8), Text(title, style: const TextStyle(fontWeight: FontWeight.bold))]),
       ),
     );
   }
 
-  // 💰 FORMAT TIỀN
-  String _formatMoney(int amount) {
-    return amount.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]}.',
-        ) +
-        'đ';
+  Widget _buildNotificationIcon(BuildContext context, User? user) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('notifications').where('user_id', isEqualTo: user?.uid).where('is_read', isEqualTo: false).snapshots(),
+      builder: (context, snapshot) {
+        int count = snapshot.hasData ? snapshot.data!.docs.length : 0;
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            IconButton(icon: const Icon(Icons.notifications_none_rounded), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => NotificationPage()))),
+            if (count > 0)
+              Positioned(right: 8, top: 8, child: Container(padding: const EdgeInsets.all(4), decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle), child: Text(count > 9 ? '9+' : '$count', style: const TextStyle(fontSize: 8, color: Colors.white)))),
+          ],
+        );
+      },
+    );
+  }
+
+  void _handleLogout(BuildContext context) {
+    showDialog(context: context, builder: (context) => AlertDialog(title: const Text("Đăng xuất?"), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text("Hủy")), TextButton(onPressed: () async { await FirebaseAuth.instance.signOut(); Navigator.pushReplacementNamed(context, '/login'); }, child: const Text("Đồng ý"))]));
+  }
+
+  void _showModal(BuildContext context, String title, String content) {
+    showDialog(context: context, builder: (_) => AlertDialog(title: Text(title), content: Text(content)));
   }
 }
