@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 
 // Đảm bảo các đường dẫn import này đúng với project của bạn
 import '../notifications/notification_page.dart';
-import '../incident_page.dart';
+import '../incidents/incident_page.dart';
 import '../function_user/bill_history_page.dart';
 
 class UserHomePage extends StatelessWidget {

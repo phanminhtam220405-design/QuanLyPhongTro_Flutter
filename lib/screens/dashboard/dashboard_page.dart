@@ -5,10 +5,11 @@ import '../house_list_page.dart';
 import '../expense/expense_page.dart';
 import '../report_page.dart';
 import '../fee_entry_page.dart';
-import '../incident_page.dart';
+import '../incidents/incident_page.dart';
 import '../backup_restore_page.dart';
 import '../contact_page.dart';
 import '../notifications/admin_send_notification.dart';
+import '../incidents/admin_incident_page.dart';
 
 class MainDashboard extends StatelessWidget {
   const MainDashboard({super.key});
@@ -198,7 +199,7 @@ class MainDashboard extends StatelessWidget {
                   "Xử lý vấn đề",
                   Icons.build_circle_outlined,
                   Colors.deepOrange,
-                  const IncidentScreen(),
+                  const AdminIncidentPage(),
                 ),
 
                 _buildMenuCard(
