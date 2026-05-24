@@ -154,44 +154,6 @@ class MainDashboard extends StatelessWidget {
           const SizedBox(height: 15),
 
           // THỐNG KÊ
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _buildStatCard(
-                    "Tổng phòng",
-                    "20",
-                    Icons.meeting_room,
-                    Colors.blue,
-                  ),
-                ),
-
-                const SizedBox(width: 10),
-
-                Expanded(
-                  child: _buildStatCard(
-                    "Đã thuê",
-                    "15",
-                    Icons.people,
-                    Colors.green,
-                  ),
-                ),
-
-                const SizedBox(width: 10),
-
-                Expanded(
-                  child: _buildStatCard(
-                    "Còn trống",
-                    "5",
-                    Icons.home,
-                    Colors.orange,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
           const SizedBox(height: 20),
 
           // MENU

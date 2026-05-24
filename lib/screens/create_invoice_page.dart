@@ -14,6 +14,7 @@ class CreateInvoicePage extends StatefulWidget {
   final int selectedYear;
   final String? invoiceId;
   final Map<String, dynamic>? existingData;
+  final String tenantUid;
 
   const CreateInvoicePage({
     super.key,
@@ -28,6 +29,7 @@ class CreateInvoicePage extends StatefulWidget {
     required this.selectedYear,
     this.invoiceId,
     this.existingData,
+    required this.tenantUid,
   });
 
   @override
@@ -115,66 +117,120 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
       ).showSnackBar(const SnackBar(content: Text("Lỗi tính toán số tiền!")));
       return;
     }
-    try {
-      final uid = FirebaseAuth.instance.currentUser!.uid;
 
+    try {
       Map<String, dynamic> payload = {
-        'userId': uid,
+        // USER NHẬN BILL
+        'userId': widget.tenantUid,
+
+        // THÔNG TIN PHÒNG
         'houseId': widget.houseId,
         'roomId': widget.roomId,
         'roomName': widget.roomName,
         'tenantName': widget.tenantName,
-        'totalAmount': totalAmount,
+
+        // THỜI GIAN
         'month': widget.selectedMonth,
         'year': widget.selectedYear,
+        'createdAt': Timestamp.now(),
+
+        // TIỀN PHÒNG
         'roomPrice': widget.roomPrice,
+
+        // ĐIỆN
         'elecOld': oldElecCtrl.text,
         'elecNew': newElecCtrl.text,
         'elecTotal': elecTotal,
+
+        // NƯỚC
         'waterOld': oldWaterCtrl.text,
         'waterNew': newWaterCtrl.text,
         'waterTotal': waterTotal,
+
+        // XE
         'xeCount': xeCountCtrl.text,
         'xeTotal': xeTotal,
+
+        // DỊCH VỤ
         'internet': double.tryParse(internetCtrl.text) ?? 0,
         'giatsay': double.tryParse(giatSayCtrl.text) ?? 0,
         'rac': double.tryParse(racCtrl.text) ?? 0,
         'thangmay': double.tryParse(thangMayCtrl.text) ?? 0,
         'dichvu': double.tryParse(dichVuCtrl.text) ?? 0,
-      };
 
-      if (widget.invoiceId != null) {
-        List newHistory = List.from(widget.existingData?['history'] ?? []);
-        newHistory.add({
-          'time': DateTime.now().toIso8601String(),
-          'msg': 'Cập nhật lại hóa đơn: ${formatVND(totalAmount)}',
-        });
-        payload['history'] = newHistory;
-        await FirebaseFirestore.instance
-            .collection('bills')
-            .doc(widget.invoiceId)
-            .update(payload);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Đã cập nhật hóa đơn thành công!")),
-          );
-          Navigator.pop(context);
-        }
-      } else {
-        payload['paidAmount'] = 0;
-        payload['status'] = 'Đã báo';
-        payload['createdAt'] = FieldValue.serverTimestamp();
-        payload['history'] = [
+        // THANH TOÁN
+        'totalAmount': totalAmount,
+        'paidAmount': 0,
+
+        // TRẠNG THÁI
+        'status': 'Đã báo',
+
+        // LỊCH SỬ
+        'history': [
           {
             'time': DateTime.now().toIso8601String(),
             'msg': 'Lập hóa đơn: ${formatVND(totalAmount)}',
           },
-        ];
-        await FirebaseFirestore.instance.collection('bills').add(payload);
+        ],
+      };
+
+      // =========================
+      // NẾU ĐANG UPDATE HÓA ĐƠN
+      // =========================
+      if (widget.invoiceId != null) {
+        List newHistory = List.from(widget.existingData?['history'] ?? []);
+
+        newHistory.add({
+          'time': DateTime.now().toIso8601String(),
+          'msg': 'Cập nhật hóa đơn: ${formatVND(totalAmount)}',
+        });
+
+        payload['history'] = newHistory;
+
+        await FirebaseFirestore.instance
+            .collection('bills')
+            .doc(widget.invoiceId)
+            .update(payload);
+
+        // THÔNG BÁO
+        await FirebaseFirestore.instance.collection('notifications').add({
+          'user_id': widget.tenantUid,
+          'title': 'Hóa đơn cập nhật',
+          'message':
+              'Hóa đơn tháng ${widget.selectedMonth}/${widget.selectedYear} đã được cập nhật',
+          'is_read': false,
+          'createdAt': Timestamp.now(),
+        });
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Đã xuất hóa đơn thành công!")),
+            const SnackBar(content: Text("Cập nhật hóa đơn thành công")),
           );
+
+          Navigator.pop(context);
+        }
+      }
+      // =========================
+      // TẠO HÓA ĐƠN MỚI
+      // =========================
+      else {
+        await FirebaseFirestore.instance.collection('bills').add(payload);
+
+        // GỬI THÔNG BÁO CHO USER
+        await FirebaseFirestore.instance.collection('notifications').add({
+          'user_id': widget.tenantUid,
+          'title': 'Hóa đơn mới',
+          'message':
+              'Bạn có hóa đơn tháng ${widget.selectedMonth}/${widget.selectedYear}',
+          'is_read': false,
+          'createdAt': Timestamp.now(),
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Xuất hóa đơn thành công")),
+          );
+
           Navigator.pop(context);
         }
       }

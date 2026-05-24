@@ -633,7 +633,24 @@ class RoomListScreen extends StatelessWidget {
                                 'room_name': '',
                               });
                         }
-
+                        QuerySnapshot oldBills = await FirebaseFirestore
+                            .instance
+                            .collection('bills')
+                            .where('roomId', isEqualTo: doc.id)
+                            .where('userId', isEqualTo: tUid)
+                            .get();
+                        await FirebaseFirestore.instance
+                            .collection('notifications')
+                            .add({
+                              'user_id': tUid,
+                              'title': 'Thanh lý hợp đồng',
+                              'message': 'Hợp đồng thuê phòng đã được thanh lý',
+                              'is_read': false,
+                              'createdAt': Timestamp.now(),
+                            });
+                        for (var bill in oldBills.docs) {
+                          await bill.reference.update({'isOldTenant': true});
+                        }
                         if (context.mounted) Navigator.pop(context);
                       },
                       child: const Text(
