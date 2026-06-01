@@ -59,8 +59,9 @@ class RoomListScreen extends StatelessWidget {
             .collection('rooms')
             .snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData)
+          if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
+          }
           return ListView(
             padding: const EdgeInsets.all(10),
             children: snapshot.data!.docs

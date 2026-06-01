@@ -28,8 +28,9 @@ class HouseListScreen extends StatelessWidget {
             .where('userId', isEqualTo: uid)
             .snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData)
+          if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
+          }
           return ListView(
             padding: const EdgeInsets.all(10),
             children: snapshot.data!.docs
@@ -243,12 +244,13 @@ class HouseListScreen extends StatelessWidget {
               onPressed: () async {
                 if (a.text.isEmpty) return;
                 if (await _isAddressDuplicate(a.text, uid, doc?.id)) {
-                  if (context.mounted)
+                  if (context.mounted) {
                     _showErrorAlert(
                       context,
                       "Trùng địa chỉ",
                       "Địa chỉ '${a.text}' đã có trong danh sách của bạn. Vui lòng kiểm tra lại.",
                     );
+                  }
                   return;
                 }
                 final payload = {

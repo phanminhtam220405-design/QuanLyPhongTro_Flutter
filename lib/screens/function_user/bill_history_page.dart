@@ -24,14 +24,17 @@ class BillHistoryPage extends StatelessWidget {
             .orderBy('createdAt', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting)
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          if (snapshot.hasError)
+          }
+          if (snapshot.hasError) {
             return const Center(child: Text("Lỗi tải dữ liệu"));
+          }
 
           var docs = snapshot.data!.docs;
-          if (docs.isEmpty)
+          if (docs.isEmpty) {
             return const Center(child: Text("Không có dữ liệu hóa đơn"));
+          }
 
           docs.sort((a, b) {
             var t1 = a.get('createdAt') as Timestamp?;
@@ -107,7 +110,7 @@ class BillHistoryPage extends StatelessWidget {
                                     ),
                                   ),
                                 )
-                                .toList(),
+                                ,
                         ],
                       ),
                     ),

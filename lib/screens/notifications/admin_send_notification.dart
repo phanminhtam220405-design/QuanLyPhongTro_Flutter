@@ -231,7 +231,7 @@ class _AdminSendNotificationPageState extends State<AdminSendNotificationPage> {
                                 labelText: 'Chọn phòng',
                                 border: OutlineInputBorder(),
                               ),
-                              value: _selectedRoomId,
+                              initialValue: _selectedRoomId,
                               items: snapshot.data!.docs.map((doc) {
                                 return DropdownMenuItem(
                                   value: doc.id,
@@ -270,7 +270,7 @@ class _AdminSendNotificationPageState extends State<AdminSendNotificationPage> {
                                 labelText: 'Chọn người dùng',
                                 border: OutlineInputBorder(),
                               ),
-                              value: _selectedUserId,
+                              initialValue: _selectedUserId,
                               items: snapshot.data!.docs.map((doc) {
                                 final data = doc.data() as Map<String, dynamic>;
                                 return DropdownMenuItem(

@@ -649,7 +649,9 @@ class _IncidentScreenState extends State<IncidentScreen> {
                 ),
                 onPressed: () async {
                   if (titleCtrl.text.trim().isEmpty ||
-                      houseCtrl.text.trim().isEmpty) return;
+                      houseCtrl.text.trim().isEmpty) {
+                    return;
+                  }
 
                   await FirebaseFirestore.instance
                       .collection('incidents')

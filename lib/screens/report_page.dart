@@ -5,19 +5,16 @@ import 'package:fl_chart/fl_chart.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key});
-
   @override
   State<ReportScreen> createState() => _ReportScreenState();
 }
 
 class _ReportScreenState extends State<ReportScreen> {
   final uid = FirebaseAuth.instance.currentUser!.uid;
-
   List<double> monthlyIncome = List.filled(12, 0.0);
   List<double> monthlyExpense = List.filled(12, 0.0);
   bool isLoading = true;
-  int selectedFilter = 12; 
-  
+  int selectedFilter = 12;
   String selectedHouseId = 'all';
   List<Map<String, dynamic>> housesList = [];
 
@@ -43,16 +40,21 @@ class _ReportScreenState extends State<ReportScreen> {
 
   Future<void> _fetchAndCalculateData() async {
     try {
-      var billsSnapshot = await FirebaseFirestore.instance.collection('bills').where('userId', isEqualTo: uid).get();
-      var expensesSnapshot = await FirebaseFirestore.instance.collection('expenses').where('userId', isEqualTo: uid).get();
+      var billsSnapshot = await FirebaseFirestore.instance.collection('bills').get();
+      var expensesSnapshot = await FirebaseFirestore.instance.collection('expenses').get();
 
       List<double> mIncome = List.filled(12, 0.0);
       List<double> mExpense = List.filled(12, 0.0);
       int currentYear = DateTime.now().year;
 
+      List<String> myHouseIds = housesList.map((h) => h['id'].toString()).toList();
+
       for (var doc in billsSnapshot.docs) {
         var data = doc.data();
         
+        String billHouseId = data['houseId']?.toString() ?? '';
+        if (!myHouseIds.contains(billHouseId)) continue;
+
         if (selectedHouseId != 'all' && data['houseId'] != selectedHouseId) continue;
 
         String status = data['status'] ?? '';
@@ -76,32 +78,65 @@ class _ReportScreenState extends State<ReportScreen> {
       for (var doc in expensesSnapshot.docs) {
         var data = doc.data();
         
+        String expHouse = data['house_id']?.toString() ?? data['houseId']?.toString() ?? '';
+        
+        bool isMyHouse = false;
+        for (var h in housesList) {
+          String hId = h['id'].toString();
+          String hName = h['name']?.toString() ?? "Không tên";
+          String hAddr = h['address']?.toString() ?? "";
+          String expectedHouseStr = hAddr.isNotEmpty ? "$hName - $hAddr" : hName;
+          
+          if (expHouse == hId || expHouse == expectedHouseStr) {
+            isMyHouse = true;
+            break;
+          }
+        }
+        
+        if (!isMyHouse && expHouse.isNotEmpty) continue;
+
         if (selectedHouseId != 'all') {
           var hList = housesList.where((element) => element['id'] == selectedHouseId).toList();
           if (hList.isEmpty) continue;
           
           var h = hList.first;
-          String expHouse = data['house_id']?.toString() ?? '';
           String hName = h['name']?.toString() ?? "Không tên";
           String hAddr = h['address']?.toString() ?? "";
           String expectedHouseStr = hAddr.isNotEmpty ? "$hName - $hAddr" : hName;
           
-          if (expHouse != expectedHouseStr) {
+          if (expHouse != selectedHouseId && expHouse != expectedHouseStr) {
             continue;
           }
         }
 
-        double amount = double.tryParse(data['amount'].toString()) ?? 0;
-        String dateStr = data['date']?.toString() ?? '';
-        List<String> parts = dateStr.split('/');
+        double amount = double.tryParse(data['amount']?.toString() ?? data['chiPhi']?.toString() ?? data['tien']?.toString() ?? '0') ?? 0;
         
-        if (parts.length == 3) {
-          int eMonth = int.tryParse(parts[1]) ?? 1;
-          int eYear = int.tryParse(parts[2]) ?? currentYear;
-          
-          if (eYear == currentYear && eMonth >= 1 && eMonth <= 12) {
-            mExpense[eMonth - 1] += amount;
+        int eMonth = 1;
+        int eYear = currentYear;
+        String dateStr = data['date']?.toString() ?? data['ngay']?.toString() ?? data['ngayTao']?.toString() ?? '';
+
+        if (dateStr.contains('/')) {
+          List<String> parts = dateStr.split('/');
+          if (parts.length >= 2) {
+            eMonth = int.tryParse(parts[1]) ?? 1;
+            eYear = parts.length >= 3 ? (int.tryParse(parts[2]) ?? currentYear) : currentYear;
           }
+        } else if (dateStr.contains('-')) {
+          List<String> parts = dateStr.split('-');
+          if (parts.length >= 2) {
+            eMonth = int.tryParse(parts[1]) ?? 1;
+            eYear = parts.length >= 3 ? (int.tryParse(parts[0]) ?? currentYear) : currentYear;
+          }
+        } else if (data['createdAt'] != null) {
+          try {
+            DateTime dt = (data['createdAt'] as Timestamp).toDate();
+            eMonth = dt.month;
+            eYear = dt.year;
+          } catch(e) {}
+        }
+
+        if (eYear == currentYear && eMonth >= 1 && eMonth <= 12) {
+          mExpense[eMonth - 1] += amount;
         }
       }
 
@@ -232,7 +267,8 @@ class _ReportScreenState extends State<ReportScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [Icon(icon, color: color, size: isBig ? 24 : 18), const SizedBox(width: 5), Text(title, style: TextStyle(color: Colors.grey[700], fontSize: isBig ? 14 : 12, fontWeight: FontWeight.bold))]),
+            Row(children: [Icon(icon, color: color, size: isBig ? 24 : 18), 
+const SizedBox(width: 5), Text(title, style: TextStyle(color: Colors.grey[700], fontSize: isBig ? 14 : 12, fontWeight: FontWeight.bold))]),
             const SizedBox(height: 10),
             Text(formatVND(value), style: TextStyle(fontSize: isBig ? 24 : 16, color: color, fontWeight: FontWeight.bold)),
           ],
@@ -280,11 +316,11 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   double _getMaxY(int startMonth, int endMonth) {
-    double maxVal = 100000; 
+    double maxVal = 100000;
     for(int i = startMonth; i <= endMonth; i++) {
       if (monthlyIncome[i - 1] > maxVal) maxVal = monthlyIncome[i - 1];
       if (monthlyExpense[i - 1] > maxVal) maxVal = monthlyExpense[i - 1];
     }
-    return maxVal * 1.2; 
+    return maxVal * 1.2;
   }
 }

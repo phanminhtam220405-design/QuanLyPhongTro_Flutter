@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'create_invoice_page.dart'; // Đảm bảo bạn đã có file này
+import 'create_invoice_page.dart'; 
 
 class FeeEntryScreen extends StatefulWidget {
   const FeeEntryScreen({super.key});
@@ -123,8 +123,9 @@ class _FeeEntryScreenState extends State<FeeEntryScreen> {
                           firstDate: DateTime(2020),
                           lastDate: DateTime(2100),
                         );
-                        if (picked != null)
+                        if (picked != null) {
                           setState(() => selectedDate = picked);
+                        }
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -191,15 +192,17 @@ class _FeeEntryScreenState extends State<FeeEntryScreen> {
                           .collection('rooms')
                           .snapshots(),
                       builder: (context, snapshot) {
-                        if (!snapshot.hasData)
+                        if (!snapshot.hasData) {
                           return const Center(
                             child: CircularProgressIndicator(),
                           );
+                        }
                         var rooms = snapshot.data!.docs;
-                        if (rooms.isEmpty)
+                        if (rooms.isEmpty) {
                           return const Center(
                             child: Text("Nhà này chưa có phòng"),
                           );
+                        }
 
                         return TabBarView(
                           children: [
@@ -526,7 +529,7 @@ class _FeeEntryScreenState extends State<FeeEntryScreen> {
                             ),
                           ),
                         )
-                        .toList(),
+                        ,
                   ],
                 ),
               ),

@@ -391,7 +391,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
                       expense: formatted,
                       onEdit: () => _showEditExpenseDialog(docs[index]),
                       onDelete: () => docs[index].reference.delete(),
-                      formatCurrency: (v) => "${v}đ",
+                      formatCurrency: (v) => "$vđ",
                     );
                   },
                 );
