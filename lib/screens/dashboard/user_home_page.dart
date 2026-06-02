@@ -45,7 +45,7 @@ class UserHomePage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Hóa đơn tháng này", 
+                  const Text("Hóa đơn cần thanh toán", 
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF263238))),
                   const SizedBox(height: 12),
                   _buildCurrentBillCard(user),
@@ -123,72 +123,99 @@ class UserHomePage extends StatelessWidget {
         if (snapshot.hasError) return _buildStatusBox("Lỗi kết nối dữ liệu");
         if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
 
-        var docs = snapshot.data!.docs;
+        var docs = snapshot.data!.docs.toList();
         if (docs.isEmpty) return _buildStatusBox("Hiện tại bạn không có hóa đơn mới");
 
-        // Sắp xếp local để lấy hóa đơn mới nhất (tránh lỗi Index Firestore)
+        // Sắp xếp theo NĂM lớn nhất, rồi tới THÁNG lớn nhất
         docs.sort((a, b) {
-          var t1 = a.get('createdAt') as Timestamp?;
-          var t2 = b.get('createdAt') as Timestamp?;
-          return (t2 ?? Timestamp.now()).compareTo(t1 ?? Timestamp.now());
+          var dataA = a.data() as Map<String, dynamic>;
+          var dataB = b.data() as Map<String, dynamic>;
+
+          int monthA = int.tryParse(dataA['month']?.toString() ?? '0') ?? 0;
+          int yearA = int.tryParse(dataA['year']?.toString() ?? '0') ?? 0;
+
+          int monthB = int.tryParse(dataB['month']?.toString() ?? '0') ?? 0;
+          int yearB = int.tryParse(dataB['year']?.toString() ?? '0') ?? 0;
+
+          if (yearA != yearB) {
+            return yearB.compareTo(yearA);
+          }
+          return monthB.compareTo(monthA);
         });
 
-        var bill = docs.first.data() as Map<String, dynamic>;
-        String status = bill['status'] ?? "Đã báo";
-        double total = double.tryParse(bill['totalAmount'].toString()) ?? 0;
-        double paid = double.tryParse(bill['paidAmount']?.toString() ?? '0') ?? 0;
-        double remaining = total - paid;
-        
-        Color statusColor = status == "Đã đóng" ? Colors.green : (status == "Đóng một phần" ? Colors.orange : Colors.red);
+        // ĐÃ FIX: Lọc lấy TẤT CẢ hóa đơn chưa đóng xong
+        var unpaidDocs = docs.where((d) {
+          var status = (d.data() as Map<String, dynamic>)['status'] ?? '';
+          return status != 'Đã đóng';
+        }).toList();
 
-        return Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
-          ),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Hóa đơn kỳ ${bill['month']}/${bill['year']}", 
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      Text(status == "Đã đóng" ? "Đã tất toán" : "Còn nợ: ${_formatCurrency(remaining)}",
-                          style: TextStyle(color: status == "Đã đóng" ? Colors.green : Colors.red, fontSize: 13, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
-                    child: Text(status, style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12)),
-                  ),
-                ],
-              ),
-              const Divider(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text("Tổng hóa đơn:", style: TextStyle(fontSize: 15)),
-                  Text(_formatCurrency(total), style: const TextStyle(fontSize: 19, color: Colors.blue, fontWeight: FontWeight.bold)),
-                ],
-              ),
-              if (paid > 0) ...[
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        // Nếu nợ nhiều tháng thì hiện hết. Nếu ko nợ gì thì hiện cái hóa đơn mới nhất (đã đóng)
+        var displayDocs = unpaidDocs.isNotEmpty ? unpaidDocs : [docs.first];
+
+        // Trả về một danh sách (Column) các hóa đơn thay vì 1 cái
+        return Column(
+          children: displayDocs.map((doc) {
+            var bill = doc.data() as Map<String, dynamic>;
+            String status = bill['status'] ?? "Đã báo";
+            double total = double.tryParse(bill['totalAmount'].toString()) ?? 0;
+            double paid = double.tryParse(bill['paidAmount']?.toString() ?? '0') ?? 0;
+            double remaining = total - paid;
+            
+            Color statusColor = status == "Đã đóng" ? Colors.green : (status == "Đóng một phần" ? Colors.orange : Colors.red);
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
+                ),
+                child: Column(
                   children: [
-                    const Text("Đã đóng trước:", style: TextStyle(fontSize: 14, color: Colors.grey)),
-                    Text(_formatCurrency(paid), style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Hóa đơn kỳ ${bill['month']}/${bill['year']}", 
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            Text(status == "Đã đóng" ? "Đã tất toán" : "Còn nợ: ${_formatCurrency(remaining)}",
+                                style: TextStyle(color: status == "Đã đóng" ? Colors.green : Colors.red, fontSize: 13, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+                          child: Text(status, style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12)),
+                        ),
+                      ],
+                    ),
+                    const Divider(height: 30),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text("Tổng hóa đơn:", style: TextStyle(fontSize: 15)),
+                        Text(_formatCurrency(total), style: const TextStyle(fontSize: 19, color: Colors.blue, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                    if (paid > 0) ...[
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text("Đã đóng trước:", style: TextStyle(fontSize: 14, color: Colors.grey)),
+                          Text(_formatCurrency(paid), style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ]
                   ],
                 ),
-              ]
-            ],
-          ),
+              ),
+            );
+          }).toList(),
         );
       },
     );

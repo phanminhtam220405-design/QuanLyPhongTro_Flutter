@@ -15,7 +15,7 @@ class _AdminSendNotificationPageState extends State<AdminSendNotificationPage> {
   final _messageController = TextEditingController();
   // Các biến để quản lý trạng thái lựa chọn
   String _selectedType = 'general';
-  String _recipientType = 'all'; // all, specific_room, specific_user
+  String _recipientType = 'all'; 
   String? _selectedRoomId;
   String? _selectedUserId;
   bool _isLoading = false;
@@ -48,10 +48,9 @@ class _AdminSendNotificationPageState extends State<AdminSendNotificationPage> {
       List<String> recipientUserIds = [];
 
       if (_recipientType == 'all') {
-        // Gửi cho tất cả khách thuê
+        // Gửi cho tất cả khách thuê (ĐÃ FIX: Bỏ điều kiện lọc role để lấy được hết user)
         final usersSnapshot = await FirebaseFirestore.instance
             .collection('users')
-            .where('role', isEqualTo: 'user')
             .get();
         recipientUserIds = usersSnapshot.docs.map((doc) => doc.id).toList();
       } else if (_recipientType == 'specific_room' && _selectedRoomId != null) {
@@ -81,7 +80,8 @@ class _AdminSendNotificationPageState extends State<AdminSendNotificationPage> {
           'message': _messageController.text.trim(),
           'type': _selectedType,
           'is_read': false,
-          'created_at': FieldValue.serverTimestamp(),
+          'createdAt': Timestamp.now(), 
+          'created_at': Timestamp.now(), 
           'sender_id': currentUser?.uid,
           'sender_name': currentUser?.displayName ?? 'Chủ trọ',
         });
@@ -257,9 +257,9 @@ class _AdminSendNotificationPageState extends State<AdminSendNotificationPage> {
                       Padding(
                         padding: const EdgeInsets.only(left: 32, top: 8),
                         child: StreamBuilder<QuerySnapshot>(
+                          // ĐÃ FIX: Xóa đoạn .where('role') ở đây để menu dropdown hiện đủ tên mọi người
                           stream: FirebaseFirestore.instance
                               .collection('users')
-                              .where('role', isEqualTo: 'user')
                               .snapshots(),
                           builder: (context, snapshot) {
                             if (!snapshot.hasData) {

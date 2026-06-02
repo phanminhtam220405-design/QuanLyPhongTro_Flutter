@@ -47,7 +47,6 @@ class NotificationPage extends StatelessWidget {
         stream: FirebaseFirestore.instance
             .collection('notifications')
             .where('user_id', isEqualTo: user?.uid)
-            // ĐÃ FIX: Bỏ .orderBy ở đây để né lỗi Index của Firebase gây trắng màn hình
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -74,20 +73,20 @@ class NotificationPage extends StatelessWidget {
             );
           }
 
-          // ĐÃ FIX: Sắp xếp thông báo mới nhất lên đầu ở local (trên app)
           var docs = snapshot.data!.docs.toList();
+          
+          // ĐÃ FIX: Chống lỗi kiểu dữ liệu thời gian 100%
           docs.sort((a, b) {
             var dataA = a.data() as Map<String, dynamic>;
             var dataB = b.data() as Map<String, dynamic>;
             
-            // Tìm cả 2 trường hợp tên biến để không bị lỗi
             var t1 = dataA['createdAt'] ?? dataA['created_at'];
             var t2 = dataB['createdAt'] ?? dataB['created_at'];
             
-            Timestamp time1 = t1 is Timestamp ? t1 : Timestamp.now();
-            Timestamp time2 = t2 is Timestamp ? t2 : Timestamp.now();
+            DateTime dt1 = t1 is Timestamp ? t1.toDate() : (t1 is String ? (DateTime.tryParse(t1) ?? DateTime.now()) : DateTime.now());
+            DateTime dt2 = t2 is Timestamp ? t2.toDate() : (t2 is String ? (DateTime.tryParse(t2) ?? DateTime.now()) : DateTime.now());
             
-            return time2.compareTo(time1);
+            return dt2.compareTo(dt1);
           });
 
           // Hiển thị chi tiết thông báo khi nhấn vào
@@ -101,8 +100,16 @@ class NotificationPage extends StatelessWidget {
               final String title = data['title'] ?? 'Thông báo';
               final String message = data['message'] ?? '';
               
-              // ĐÃ FIX: Lấy đúng tên trường createdAt
-              final Timestamp? timestamp = data['createdAt'] ?? data['created_at'];
+              // ĐÃ FIX: Khôi phục thời gian an toàn không bị sập
+              var rawTime = data['createdAt'] ?? data['created_at'];
+              Timestamp? timestamp;
+              if (rawTime is Timestamp) {
+                timestamp = rawTime;
+              } else if (rawTime is String) {
+                try {
+                  timestamp = Timestamp.fromDate(DateTime.parse(rawTime));
+                } catch(e){}
+              }
 
               // Cho phép xóa thông báo bằng cách vuốt sang trái
               return Dismissible(
