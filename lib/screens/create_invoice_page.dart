@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CreateInvoicePage extends StatefulWidget {
   final String houseId;
@@ -61,8 +62,7 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
       oldWaterCtrl.text = widget.existingData!['waterOld']?.toString() ?? '';
       newWaterCtrl.text = widget.existingData!['waterNew']?.toString() ?? '';
       xeCountCtrl.text = widget.existingData!['xeCount']?.toString() ?? '0';
-      internetCtrl.text =
-          widget.existingData!['internet']?.toString() ?? '100000';
+      internetCtrl.text = widget.existingData!['internet']?.toString() ?? '100000';
       giatSayCtrl.text = widget.existingData!['giatsay']?.toString() ?? '50000';
       racCtrl.text = widget.existingData!['rac']?.toString() ?? '17000';
       thangMayCtrl.text = widget.existingData!['thangmay']?.toString() ?? '0';
@@ -96,8 +96,7 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
     double dichvu = double.tryParse(dichVuCtrl.text) ?? 0;
 
     setState(() {
-      totalAmount =
-          widget.roomPrice +
+      totalAmount = widget.roomPrice +
           elecTotal +
           waterTotal +
           xeTotal +
@@ -111,60 +110,38 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
 
   Future<void> _saveInvoice() async {
     if (totalAmount < widget.roomPrice) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Lỗi tính toán số tiền!")));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Lỗi tính toán số tiền!")));
       return;
     }
 
     try {
       Map<String, dynamic> payload = {
-        // USER NHẬN BILL
-        'userId': widget.tenantUid,
-
-        // THÔNG TIN PHÒNG
+        'userId': FirebaseAuth.instance.currentUser?.uid ?? '',
+        'tenantUid': widget.tenantUid,
         'houseId': widget.houseId,
         'roomId': widget.roomId,
         'roomName': widget.roomName,
         'tenantName': widget.tenantName,
-
-        // THỜI GIAN
         'month': widget.selectedMonth,
         'year': widget.selectedYear,
         'createdAt': Timestamp.now(),
-
-        // TIỀN PHÒNG
         'roomPrice': widget.roomPrice,
-
-        // ĐIỆN
         'elecOld': oldElecCtrl.text,
         'elecNew': newElecCtrl.text,
         'elecTotal': elecTotal,
-
-        // NƯỚC
         'waterOld': oldWaterCtrl.text,
         'waterNew': newWaterCtrl.text,
         'waterTotal': waterTotal,
-
-        // XE
         'xeCount': xeCountCtrl.text,
         'xeTotal': xeTotal,
-
-        // DỊCH VỤ
         'internet': double.tryParse(internetCtrl.text) ?? 0,
         'giatsay': double.tryParse(giatSayCtrl.text) ?? 0,
         'rac': double.tryParse(racCtrl.text) ?? 0,
         'thangmay': double.tryParse(thangMayCtrl.text) ?? 0,
         'dichvu': double.tryParse(dichVuCtrl.text) ?? 0,
-
-        // THANH TOÁN
         'totalAmount': totalAmount,
         'paidAmount': 0,
-
-        // TRẠNG THÁI
         'status': 'Đã báo',
-
-        // LỊCH SỬ
         'history': [
           {
             'time': DateTime.now().toIso8601String(),
@@ -173,30 +150,20 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
         ],
       };
 
-      // =========================
-      // NẾU ĐANG UPDATE HÓA ĐƠN
-      // =========================
       if (widget.invoiceId != null) {
         List newHistory = List.from(widget.existingData?['history'] ?? []);
-
         newHistory.add({
           'time': DateTime.now().toIso8601String(),
           'msg': 'Cập nhật hóa đơn: ${formatVND(totalAmount)}',
         });
-
         payload['history'] = newHistory;
 
-        await FirebaseFirestore.instance
-            .collection('bills')
-            .doc(widget.invoiceId)
-            .update(payload);
+        await FirebaseFirestore.instance.collection('bills').doc(widget.invoiceId).update(payload);
 
-        // THÔNG BÁO
         await FirebaseFirestore.instance.collection('notifications').add({
           'user_id': widget.tenantUid,
           'title': 'Hóa đơn cập nhật',
-          'message':
-              'Hóa đơn tháng ${widget.selectedMonth}/${widget.selectedYear} đã được cập nhật',
+          'message': 'Hóa đơn tháng ${widget.selectedMonth}/${widget.selectedYear} đã được cập nhật',
           'is_read': false,
           'createdAt': Timestamp.now(),
         });
@@ -205,22 +172,15 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Cập nhật hóa đơn thành công")),
           );
-
           Navigator.pop(context);
         }
-      }
-      // =========================
-      // TẠO HÓA ĐƠN MỚI
-      // =========================
-      else {
+      } else {
         await FirebaseFirestore.instance.collection('bills').add(payload);
 
-        // GỬI THÔNG BÁO CHO USER
         await FirebaseFirestore.instance.collection('notifications').add({
           'user_id': widget.tenantUid,
           'title': 'Hóa đơn mới',
-          'message':
-              'Bạn có hóa đơn tháng ${widget.selectedMonth}/${widget.selectedYear}',
+          'message': 'Bạn có hóa đơn tháng ${widget.selectedMonth}/${widget.selectedYear}',
           'is_read': false,
           'createdAt': Timestamp.now(),
         });
@@ -229,14 +189,11 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Xuất hóa đơn thành công")),
           );
-
           Navigator.pop(context);
         }
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Lỗi: $e")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Lỗi: $e")));
     }
   }
 
@@ -270,20 +227,14 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
           children: [
             _buildFakeDropdown("Nhà ID: ${widget.houseId.substring(0, 5)}..."),
             const SizedBox(height: 10),
-            _buildFakeDropdown(
-              "Phòng: ${widget.roomName} - ${widget.tenantName}",
-            ),
+            _buildFakeDropdown("Phòng: ${widget.roomName} - ${widget.tenantName}"),
             const SizedBox(height: 25),
-
             Row(
               children: [
                 const Icon(Icons.flash_on, color: Colors.orange),
-
                 const SizedBox(width: 8),
-
                 Text(
                   "Điện - ${formatVND(widget.electricPrice)}/Kwh",
-
                   style: const TextStyle(
                     color: Color(0xFF1976D2),
                     fontWeight: FontWeight.bold,
@@ -292,7 +243,6 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
                 ),
               ],
             ),
-
             const SizedBox(height: 10),
             Row(
               children: [
@@ -302,7 +252,6 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
               ],
             ),
             const SizedBox(height: 25),
-
             Row(
               children: [
                 const Icon(Icons.water_drop, color: Colors.blue),
@@ -326,7 +275,6 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
               ],
             ),
             const SizedBox(height: 25),
-
             const Text(
               "Các loại phí dịch vụ (đ/Phòng)",
               style: TextStyle(
@@ -354,7 +302,6 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
             const SizedBox(height: 15),
             _buildTextField("Phí dịch vụ khác", dichVuCtrl),
             const SizedBox(height: 25),
-
             const Text(
               "Gửi Xe (10.000đ/Chiếc)",
               style: TextStyle(
@@ -368,63 +315,48 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
               width: MediaQuery.of(context).size.width * 0.4,
               child: _buildTextField("Số lượng xe", xeCountCtrl),
             ),
-
             const SizedBox(height: 30),
             const Divider(thickness: 2),
             const SizedBox(height: 10),
             Container(
               width: double.infinity,
-
               padding: const EdgeInsets.all(20),
-
               decoration: BoxDecoration(
                 color: Colors.white,
-
                 borderRadius: BorderRadius.circular(22),
-
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 14,
                     offset: const Offset(0, 6),
                   ),
                 ],
               ),
-
               child: Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
                     children: [
                       const Text("Tiền phòng:", style: TextStyle(fontSize: 15)),
-
                       Text(
                         formatVND(widget.roomPrice),
-
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
-
                   const Divider(height: 25),
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
                     children: [
                       const Text(
                         "TỔNG THANH TOÁN",
-
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-
                       Text(
                         formatVND(totalAmount),
-
                         style: const TextStyle(
                           fontSize: 28,
                           color: Colors.red,
@@ -436,7 +368,6 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
                 ],
               ),
             ),
-
             const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -455,20 +386,16 @@ class _CreateInvoicePageState extends State<CreateInvoicePage> {
                 ),
               ],
             ),
-
             const SizedBox(height: 30),
             SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isEditing
-                      ? Colors.blue
-                      : const Color(0xFFFF9800),
+                  backgroundColor: isEditing ? Colors.blue : const Color(0xFFFF9800),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(18),
                   ),
-
                   elevation: 2,
                 ),
                 onPressed: _saveInvoice,

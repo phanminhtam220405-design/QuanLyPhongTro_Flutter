@@ -49,8 +49,8 @@ class ExpenseDialogs {
                         Container(
                           padding: const EdgeInsets.all(15),
                           decoration: BoxDecoration(
-                            color: (category['color'] as Color).withOpacity(
-                              0.2,
+                            color: (category['color'] as Color).withValues(
+                              alpha: 0.2,
                             ),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(

@@ -47,7 +47,7 @@ class NotificationPage extends StatelessWidget {
         stream: FirebaseFirestore.instance
             .collection('notifications')
             .where('user_id', isEqualTo: user?.uid)
-            .orderBy('created_at', descending: true)
+            // ĐÃ FIX: Bỏ .orderBy ở đây để né lỗi Index của Firebase gây trắng màn hình
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -74,17 +74,35 @@ class NotificationPage extends StatelessWidget {
             );
           }
 
+          // ĐÃ FIX: Sắp xếp thông báo mới nhất lên đầu ở local (trên app)
+          var docs = snapshot.data!.docs.toList();
+          docs.sort((a, b) {
+            var dataA = a.data() as Map<String, dynamic>;
+            var dataB = b.data() as Map<String, dynamic>;
+            
+            // Tìm cả 2 trường hợp tên biến để không bị lỗi
+            var t1 = dataA['createdAt'] ?? dataA['created_at'];
+            var t2 = dataB['createdAt'] ?? dataB['created_at'];
+            
+            Timestamp time1 = t1 is Timestamp ? t1 : Timestamp.now();
+            Timestamp time2 = t2 is Timestamp ? t2 : Timestamp.now();
+            
+            return time2.compareTo(time1);
+          });
+
           // Hiển thị chi tiết thông báo khi nhấn vào
           return ListView.builder(
-            itemCount: snapshot.data!.docs.length,
+            itemCount: docs.length,
             itemBuilder: (context, index) {
-              final notificationData = snapshot.data!.docs[index];
+              final notificationData = docs[index];
               final data = notificationData.data() as Map<String, dynamic>;
               final bool isRead = data['is_read'] ?? false;
               final String type = data['type'] ?? 'general';
               final String title = data['title'] ?? 'Thông báo';
               final String message = data['message'] ?? '';
-              final Timestamp? timestamp = data['created_at'];
+              
+              // ĐÃ FIX: Lấy đúng tên trường createdAt
+              final Timestamp? timestamp = data['createdAt'] ?? data['created_at'];
 
               // Cho phép xóa thông báo bằng cách vuốt sang trái
               return Dismissible(
@@ -118,7 +136,7 @@ class NotificationPage extends StatelessWidget {
                     leading: CircleAvatar(
                       backgroundColor: _getNotificationColor(
                         type,
-                      ).withOpacity(0.2),
+                      ).withValues(alpha: 0.2),
                       child: Icon(
                         _getNotificationIcon(type),
                         color: _getNotificationColor(type),

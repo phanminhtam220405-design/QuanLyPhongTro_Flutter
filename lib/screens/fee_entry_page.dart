@@ -168,7 +168,6 @@ class _FeeEntryScreenState extends State<FeeEntryScreen> {
                   color: const Color(0xFF1976D2),
                   borderRadius: BorderRadius.circular(16),
                 ),
-
                 labelStyle: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -238,7 +237,7 @@ class _FeeEntryScreenState extends State<FeeEntryScreen> {
           stream: FirebaseFirestore.instance
               .collection('bills')
               .where('roomId', isEqualTo: roomId)
-              .where('userId', isEqualTo: tenantId)
+              // ĐÃ FIX: Xóa dòng check userId cũ bị sai, chỉ cần lấy theo roomId và thời gian là chuẩn tuyệt đối
               .where('month', isEqualTo: selectedDate.month)
               .where('year', isEqualTo: selectedDate.year)
               .snapshots(),
@@ -307,7 +306,7 @@ class _FeeEntryScreenState extends State<FeeEntryScreen> {
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
@@ -322,7 +321,7 @@ class _FeeEntryScreenState extends State<FeeEntryScreen> {
               children: [
                 CircleAvatar(
                   radius: 24,
-                  backgroundColor: statusColor.withOpacity(0.1),
+                  backgroundColor: statusColor.withValues(alpha: 0.1),
                   child: Icon(
                     status == "Đã đóng"
                         ? Icons.check_circle
@@ -358,7 +357,7 @@ class _FeeEntryScreenState extends State<FeeEntryScreen> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
+                    color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: Text(

@@ -32,7 +32,7 @@ class LoginPage extends StatelessWidget {
 
                 decoration: BoxDecoration(
                   color: const Color(0xFF1976D2)
-                      .withOpacity(0.1),
+                      .withValues(alpha: 0.1),
 
                   shape: BoxShape.circle,
                 ),
@@ -205,7 +205,7 @@ class LoginPage extends StatelessWidget {
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

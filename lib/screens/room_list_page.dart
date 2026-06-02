@@ -93,7 +93,7 @@ class RoomListScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
@@ -211,8 +211,8 @@ class RoomListScreen extends StatelessWidget {
 
                   decoration: BoxDecoration(
                     color: isRented
-                        ? Colors.green.withOpacity(0.1)
-                        : Colors.orange.withOpacity(0.1),
+                        ? Colors.green.withValues(alpha: 0.1)
+                        : Colors.orange.withValues(alpha: 0.1),
 
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -323,7 +323,7 @@ class RoomListScreen extends StatelessWidget {
 
                   CircleAvatar(
                     radius: 35,
-                    backgroundColor: const Color(0xFF1976D2).withOpacity(0.1),
+                    backgroundColor: const Color(0xFF1976D2).withValues(alpha: 0.1),
 
                     child: const Icon(
                       Icons.description_outlined,
@@ -526,7 +526,7 @@ class RoomListScreen extends StatelessWidget {
               const SizedBox(height: 20),
               CircleAvatar(
                 radius: 32,
-                backgroundColor: Colors.green.withOpacity(0.1),
+                backgroundColor: Colors.green.withValues(alpha: 0.1),
                 child: const Icon(
                   Icons.description,
                   size: 32,
@@ -774,7 +774,7 @@ class RoomListScreen extends StatelessWidget {
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -860,7 +860,7 @@ class RoomListScreen extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 24,
-                    backgroundColor: const Color(0xFF1976D2).withOpacity(0.1),
+                    backgroundColor: const Color(0xFF1976D2).withValues(alpha: 0.1),
 
                     child: const Icon(
                       Icons.meeting_room_rounded,

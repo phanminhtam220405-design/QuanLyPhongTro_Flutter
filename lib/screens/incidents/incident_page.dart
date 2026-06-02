@@ -141,7 +141,7 @@ class _IncidentScreenState extends State<IncidentScreen> {
               : Border.all(color: Colors.transparent),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: Colors.black.withValues(alpha: 0.06),
               blurRadius: 12,
               offset: const Offset(0, 5),
             ),
@@ -244,7 +244,7 @@ class _IncidentScreenState extends State<IncidentScreen> {
                         color: cfg.bgColor,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                            color: cfg.color.withOpacity(0.3)),
+                            color: cfg.color.withValues(alpha: 0.3)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,7 +341,7 @@ class _IncidentScreenState extends State<IncidentScreen> {
                 shape: BoxShape.circle,
                 color: isCompleted ? cfg.color : Colors.grey.shade200,
                 border: isCurrent
-                    ? Border.all(color: cfg.color.withOpacity(0.3), width: 3)
+                    ? Border.all(color: cfg.color.withValues(alpha: 0.3), width: 3)
                     : null,
               ),
               child: isCompleted
@@ -413,7 +413,7 @@ class _IncidentScreenState extends State<IncidentScreen> {
                     color: cfg.bgColor,
                     borderRadius: BorderRadius.circular(30),
                     border:
-                        Border.all(color: cfg.color.withOpacity(0.4)),
+                        Border.all(color: cfg.color.withValues(alpha: 0.4)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -456,7 +456,7 @@ class _IncidentScreenState extends State<IncidentScreen> {
                     color: cfg.bgColor,
                     borderRadius: BorderRadius.circular(16),
                     border:
-                        Border.all(color: cfg.color.withOpacity(0.3)),
+                        Border.all(color: cfg.color.withValues(alpha: 0.3)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
